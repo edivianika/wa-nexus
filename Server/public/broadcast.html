@@ -725,6 +725,7 @@
       
       // Update preview for broadcast form
       updateBroadcastPreview();
+      updateContactsPreview();
       
       // Tab switching
       document.querySelectorAll('.tab').forEach(tab => {
@@ -742,6 +743,17 @@
         if (this.value === 'media') {
           mediaOptions.classList.remove('hidden');
           updateMediaPreview(); // Update preview when showing media options
+        } else {
+          mediaOptions.classList.add('hidden');
+        }
+      });
+
+      // Toggle template media options based on message type
+      document.getElementById('templateType').addEventListener('change', function() {
+        const mediaOptions = document.getElementById('templateMediaOptions');
+        if (this.value === 'media') {
+          mediaOptions.classList.remove('hidden');
+          updateTemplateMediaPreview(); // Update preview when showing media options
         } else {
           mediaOptions.classList.add('hidden');
         }
@@ -893,6 +905,7 @@
       
       // Add event listeners for preview updates
       document.getElementById('message').addEventListener('input', updateBroadcastPreview);
+      document.getElementById('contacts').addEventListener('input', updateContactsPreview);
       document.getElementById('mediaUrl').addEventListener('input', updateMediaPreview);
       document.getElementById('caption').addEventListener('input', updateMediaPreview);
       document.getElementById('templateMediaUrl').addEventListener('input', updateTemplateMediaPreview);
@@ -1050,7 +1063,7 @@
         e.preventDefault();
         const submitBtn = e.target.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
 
         try {
           const templateName = document.getElementById('templateName').value;
@@ -1143,11 +1156,20 @@
           document.getElementById('templateContacts').value = "6281234567890\n6289876543210\n6287654321098";
           document.getElementById('connectionIdTemplate').value = "device-1";
           
+          // Update previews after reset
+          updateBroadcastPreview();
+          updateContactsPreview();
+          
         } catch (err) {
           showAlert('danger', err.message);
         } finally {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = 'Send Template';
+          submitBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+            </svg>
+            Kirim Template
+          `;
         }
       });
 
@@ -1156,7 +1178,7 @@
         e.preventDefault();
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
 
         try {
           const contacts = document.getElementById('contacts').value.split('\n')
@@ -1236,6 +1258,11 @@
           document.getElementById('contacts').value = "6281234567890\n6289876543210\n6287654321098";
           document.getElementById('message').value = "Halo {{nomor}}, ini adalah pesan broadcast test. Terima kasih telah bergabung dengan kami!";
           document.getElementById('apiKey').value = "550dae6069b58048d7882fa5e57e78b32562881434bd85a3";
+          document.getElementById('connectionId').value = "device-1";
+          
+          // Update previews after reset
+          updateBroadcastPreview();
+          updateContactsPreview();
           
         } catch (err) {
           showAlert('danger', err.message);
@@ -1245,7 +1272,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
             </svg>
-            Send Broadcast
+            Kirim Broadcast
           `;
         }
       });
@@ -1264,7 +1291,7 @@
         e.preventDefault();
         const submitBtn = document.getElementById('groupSubmitBtn');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Memproses...';
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
 
         // Prepare data
         const data = {
@@ -1275,7 +1302,8 @@
           caption: document.getElementById('groupCaption').value || undefined,
           schedule: document.getElementById('groupSchedule').value || undefined,
           speed: document.getElementById('groupSpeed').value,
-          connectionId: document.getElementById('connectionId').value || undefined
+          connectionId: document.getElementById('connectionId').value || undefined,
+          apiKey: document.getElementById('apiKey').value
         };
 
         // Send request
@@ -1283,7 +1311,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${document.getElementById('apiKey').value}`
+            'Authorization': `Bearer ${data.apiKey}`
           },
           body: JSON.stringify(data)
         })
@@ -1292,119 +1320,26 @@
           if (result.error) {
             throw new Error(result.error);
           }
-          alert('Pesan grup berhasil dijadwalkan!');
+          showAlert('success', 'Pesan grup berhasil dijadwalkan! Job ID: ' + result.jobId);
           // Switch to monitoring tab
           document.querySelectorAll('.tab')[3].click();
           document.getElementById('jobId').value = result.jobId;
           document.getElementById('checkStatusBtn').click();
         })
         .catch(err => {
-          alert('Error: ' + err.message);
+          showAlert('danger', 'Error: ' + err.message);
         })
         .finally(() => {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Kirim ke Grup';
+          submitBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+            </svg>
+            Kirim ke Grup
+          `;
         });
       });
 
-      document.getElementById('messageType').addEventListener('change', function() {
-        const textContainer = document.getElementById('textMessageContainer');
-        const mediaContainer = document.getElementById('mediaMessageContainer');
-        const messageInput = document.getElementById('message');
-        const mediaUrlInput = document.getElementById('mediaUrl');
-        const captionInput = document.getElementById('caption');
-
-        if (this.value === 'media') {
-          textContainer.style.display = 'none';
-          mediaContainer.style.display = 'block';
-          messageInput.removeAttribute('required');
-          mediaUrlInput.setAttribute('required', '');
-        } else {
-          textContainer.style.display = 'block';
-          mediaContainer.style.display = 'none';
-          messageInput.setAttribute('required', '');
-          mediaUrlInput.removeAttribute('required');
-        }
-        updatePreview();
-      });
-
-      function updatePreview() {
-        const type = document.getElementById('messageType').value;
-        const preview = document.getElementById('previewMessage');
-        
-        if (type === 'media') {
-          const mediaUrl = document.getElementById('mediaUrl').value;
-          const caption = document.getElementById('caption').value;
-          
-          if (mediaUrl) {
-            preview.innerHTML = `
-              <div style="margin-bottom: 8px;">
-                <img src="${mediaUrl}" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
-              </div>
-              ${caption ? `<div>${caption}</div>` : ''}
-            `;
-          } else {
-            preview.innerHTML = '<em>Preview akan muncul setelah URL media diisi</em>';
-          }
-        } else {
-          const message = document.getElementById('message').value;
-          preview.textContent = message || '<em>Preview akan muncul setelah pesan diisi</em>';
-        }
-      }
-
-      document.getElementById('mediaUrl').addEventListener('input', updatePreview);
-      document.getElementById('caption').addEventListener('input', updatePreview);
-      document.getElementById('message').addEventListener('input', updatePreview);
-
-      document.getElementById('broadcastForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const type = document.getElementById('messageType').value;
-        const apiKey = document.getElementById('apiKey').value;
-        const contacts = document.getElementById('contacts').value
-          .split('\n')
-          .map(c => c.trim())
-          .filter(c => c);
-        const speed = document.getElementById('speed').value;
-
-        let messageData = {
-          type,
-          apiKey,
-          contacts,
-          speed
-        };
-
-        if (type === 'media') {
-          messageData.mediaUrl = document.getElementById('mediaUrl').value;
-          messageData.caption = document.getElementById('caption').value;
-        } else {
-          messageData.message = document.getElementById('message').value;
-        }
-
-        try {
-          const response = await fetch('/api/broadcast', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(messageData)
-          });
-
-          const result = await response.json();
-          
-          if (result.success) {
-            showNotification('Broadcast berhasil dimulai!', 'success');
-            document.getElementById('broadcastForm').reset();
-            document.getElementById('apiKey').value = '550dae6069b58048d7882fa5e57e78b32562881434bd85a3';
-            updatePreview();
-          } else {
-            showNotification(result.error || 'Gagal mengirim broadcast', 'error');
-          }
-        } catch (error) {
-          showNotification('Terjadi kesalahan saat mengirim broadcast', 'error');
-          console.error('Error:', error);
-        }
-      });
     });
   </script>
 </body>

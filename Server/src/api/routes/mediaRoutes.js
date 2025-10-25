@@ -31,7 +31,7 @@ const mimeTypes = {
  * GET /api/media/:filename
  * Serve media files from temp/media-cache directory
  */
-router.get('/api/media/:filename', (req, res) => {
+router.get('/media/:filename', (req, res) => {
   try {
     const { filename } = req.params;
     
