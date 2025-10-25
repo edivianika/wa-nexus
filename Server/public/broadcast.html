@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Broadcast System</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --success: #27ae60;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --light: #f8f9fa;
+      --dark: #2c3e50;
+      --gray: #7b8a99;
+      --border: #e1e5ea;
+    }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #f4f6fb;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      color: var(--dark);
+    }
+    .container {
+      max-width: 720px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(44,62,80,0.08);
+      padding: 28px 32px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    h1 {
+      color: var(--dark);
+      margin-bottom: 8px;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    .subtitle {
+      color: var(--gray);
+      font-size: 1rem;
+    }
+    .card {
+      background: var(--light);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 24px;
+      border-left: 4px solid var(--primary);
+    }
+    .tab-container {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .tab {
+      padding: 12px 24px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--gray);
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab:hover {
+      color: var(--primary);
+    }
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    form label {
+      display: block;
+      margin-top: 18px;
+      color: var(--dark);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #fff;
+      transition: all 0.2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .flex-row {
+      display: flex;
+      gap: 16px;
+    }
+    .flex-col {
+      flex: 1;
+    }
+    .hint {
+      font-size: 0.85rem;
+      color: var(--gray);
+      margin-top: 4px;
+    }
+    .btn {
+      width: 100%;
+      margin-top: 24px;
+      padding: 14px 0;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn:hover {
+      background: var(--primary-dark);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn-outline:hover {
+      background: rgba(52,152,219,0.1);
+    }
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      width: auto;
+      margin-top: 0;
+    }
+    .preview-message {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 16px;
+      position: relative;
+      margin-top: 24px;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    }
+    .preview-message::before {
+      content: "Preview Pesan";
+      position: absolute;
+      top: -10px;
+      left: 16px;
+      background: #fff;
+      padding: 0 8px;
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+    .progress-container {
+      margin-top: 24px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.5s;
+    }
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+    .stat-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 16px;
+      justify-content: space-between;
+    }
+    .stat-box {
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px 16px;
+      flex: 1;
+      min-width: 100px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+    .stat-box h3 {
+      margin: 0 0 4px 0;
+      font-size: 1.8rem;
+      color: var(--primary);
+    }
+    .stat-box p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+    .chart-container {
+      width: 100%;
+      max-width: 300px;
+      margin: 32px auto;
+    }
+    .status-sent { color: var(--success); }
+    .status-failed { color: var(--danger); }
+    .status-waiting { color: var(--warning); }
+    .status-skipped { color: var(--gray); }
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-right: 4px;
+    }
+    .tag-blue { background: rgba(52,152,219,0.15); color: var(--primary); }
+    .tag-green { background: rgba(39,174,96,0.15); color: var(--success); }
+    .tag-yellow { background: rgba(243,156,18,0.15); color: var(--warning); }
+    .contacts-preview {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+    .hidden {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .container { padding: 20px 16px; margin: 16px; width: auto; max-width: none; }
+      .flex-row { flex-direction: column; gap: 0; }
+      .stat-container { flex-direction: column; }
+    }
+    /* Additional styles for media preview */
+    .media-preview-image {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .media-preview-doc {
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .media-preview-doc .icon {
+      width: 40px;
+      height: 40px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-weight: bold;
+      color: #64748b;
+    }
+    .media-preview-doc .details {
+      flex: 1;
+      text-align: left;
+    }
+    .media-preview-doc .details .filename {
+      font-weight: 500;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .media-preview-doc .details .mimetype {
+      font-size: 0.8em;
+      color: #64748b;
+    }
+    .media-preview-caption {
+      margin-top: 8px;
+      text-align: left;
+      font-size: 0.9em;
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>WhatsApp Broadcast System</h1>
+      <p class="subtitle">Kirim pesan massal dengan mudah ke ribuan kontak</p>
+    </header>
+    
+    <div class="tab-container">
+      <div class="tab active" data-tab="broadcast">Broadcast Baru</div>
+      <div class="tab" data-tab="template">Template</div>
+      <div class="tab" data-tab="group">Grup</div>
+      <div class="tab" data-tab="monitoring">Monitoring</div>
+      <div class="tab" data-tab="blacklist">Blacklist</div>
+    </div>
+    
+    <div class="tab-content active" id="tab-broadcast">
+      <form id="broadcastForm" autocomplete="off">
+        <div class="flex-row">
+          <div class="flex-col">
+            <label>Daftar Kontak
+              <textarea name="contacts" id="contacts" required placeholder="6281234567890&#10;6289876543210" value="6281234567890&#10;6289876543210&#10;6287654321098"></textarea>
+              <span class="hint">Masukkan nomor telepon (satu per baris). Wajib diisi.</span>
+            </label>
+          </div>
+          <div class="flex-col">
+            <label for="groupTag">Group Tag (opsional)
+              <input type="text" name="groupTag" id="groupTag" placeholder="Contoh: customer-premium">
+            </label>
+          </div>
+        </div>
+        
+        <div id="contacts-preview-container">
+          <label>Preview Kontak:
+            <div id="previewContacts" class="contacts-preview"></div>
+          </label>
+          <div class="hint">Total kontak: <span id="contactCount">0</span></div>
+        </div>
+
+        <label>API Key
+          <input type="text" name="apiKey" id="apiKey" required placeholder="Masukkan API Key Anda" value="550dae6069b58048d7882fa5e57e78b32562881434bd85a3">
+        </label>
+        
+        <label for="connectionId">Connection ID <span class="hint" style="display:inline">(opsional untuk multi-device)</span>
+          <input type="text" name="connectionId" id="connectionId" placeholder="device-1" value="device-1">
+        </label>
+
+        <label for="message">Pesan
+          <textarea name="message" id="message" required placeholder="Tulis pesan broadcast di sini...&#10;&#10;Tips: Gunakan {{nomor}} untuk personalisasi pesan." value="Halo {{nomor}}, ini adalah pesan broadcast test. Terima kasih telah bergabung dengan kami!"></textarea>
+           <span class="hint">Wajib diisi.</span>
+        </label>
+        
+        <div id="preview-container">
+          <div class="preview-message" id="previewMessage"></div>
+        </div>
+        
+        <div id="mediaOptions" class="hidden">
+          <label for="mediaUrl">URL Media
+            <input type="text" name="mediaUrl" id="mediaUrl" placeholder="https://example.com/image.jpg" value="https://example.com/test-image.jpg">
+          </label>
+          <label for="caption">Caption Media
+            <input type="text" name="caption" id="caption" placeholder="Caption untuk media" value="Ini adalah caption test untuk media">
+          </label>
+          <div id="media-preview-container" class="hidden" style="margin-top: 15px;">
+            <label>Preview Media:</label>
+            <div id="mediaPreview" class="preview-message" style="padding: 15px; text-align: center;"></div>
+          </div>
+        </div>
+        
+        <div class="flex-row">
+          <div class="flex-col">
+            <label for="type">Tipe Pesan
+              <select name="type" id="type">
+                <option value="text" selected>Text</option>
+                <option value="media">Media</option>
+              </select>
+            </label>
+          </div>
+          <div class="flex-col">
+            <label for="priority">Prioritas
+              <select name="priority" id="priority">
+                <option value="1">Tinggi</option>
+                <option value="2" selected>Normal</option>
+                <option value="3">Rendah</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        
+        <div class="flex-row">
+          <div class="flex-col">
+            <label for="schedule">Jadwal (opsional)
+              <input type="datetime-local" name="schedule" id="schedule">
+            </label>
+          </div>
+          <div class="flex-col">
+            <label for="speed">Kecepatan Pengiriman
+              <select name="speed" id="speed" required>
+                <option value="fast">Fast (360/menit)</option>
+                <option value="normal" selected>Normal (120/menit)</option>
+                <option value="slow">Slow (60/menit)</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        
+        <label for="maxRetry">Percobaan Ulang (Max 3)
+          <input type="number" name="maxRetry" id="maxRetry" value="3" min="0" max="3">
+          <span class="hint">Jumlah percobaan ulang jika pengiriman gagal (0-3). Dikelola oleh sistem queue.</span>
+        </label>
+        
+        <button type="submit" class="btn" id="submitBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+          </svg>
+          Kirim Broadcast
+        </button>
+      </form>
+    </div>
+    
+    <div class="tab-content" id="tab-template">
+      <form id="templateForm" autocomplete="off">
+        <div class="flex-row">
+          <div class="flex-col">
+            <label for="templateName">Nama Template
+              <input type="text" name="templateName" id="templateName" required placeholder="promo-ramadhan" value="promo-ramadhan">
+              <span class="hint">Nama template yang sudah ada di sistem. Wajib diisi.</span>
+            </label>
+          </div>
+          <div class="flex-col">
+            <label for="templateType">Tipe Template
+              <select name="templateType" id="templateType">
+                <option value="text" selected>Text</option>
+                <option value="media">Media</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="templateApiKey" class="form-label">API Key</label>
+          <input type="text" class="form-control" id="templateApiKey" value="550dae6069b58048d7882fa5e57e78b32562881434bd85a3" required>
+        </div>
+        
+        <label for="connectionIdTemplate">Connection ID <span class="hint" style="display:inline">(opsional untuk multi-device)</span>
+          <input type="text" name="connectionIdTemplate" id="connectionIdTemplate" placeholder="device-1" value="device-1">
+        </label>
+
+        <div id="templateMediaOptions" class="hidden">
+          <label for="templateMediaUrl">URL Media
+            <input type="text" name="templateMediaUrl" id="templateMediaUrl" placeholder="https://example.com/image.jpg" value="https://example.com/promo-ramadhan.jpg">
+          </label>
+          <label for="templateCaption">Caption Media (opsional)
+            <input type="text" name="templateCaption" id="templateCaption" placeholder="Caption untuk media" value="Promo Ramadhan 2024 - Diskon hingga 50%">
+          </label>
+          <div id="template-media-preview-container" class="hidden" style="margin-top: 15px;">
+            <label>Preview Media:</label>
+            <div id="templateMediaPreview" class="preview-message" style="padding: 15px; text-align: center;"></div>
+          </div>
+        </div>
+
+        <div class="flex-row">
+          <div class="flex-col">
+            <label for="templateVariables">Variabel (JSON)
+              <textarea name="templateVariables" id="templateVariables" required placeholder='{"nama": "John", "event": "Promo Ramadhan"}' value='{"nama": "John", "event": "Promo Ramadhan", "link": "https://example.com/promo-ramadhan"}'></textarea>
+              <span class="hint">Variabel untuk mengisi template. Wajib diisi.</span>
+            </label>
+          </div>
+          <div class="flex-col">
+            <label for="templateContacts">Kontak
+              <textarea name="templateContacts" id="templateContacts" required placeholder="6281234567890&#10;6289876543210" value="6281234567890&#10;6289876543210&#10;6287654321098"></textarea>
+              <span class="hint">Satu nomor per baris. Wajib diisi.</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex-row">
+          <div class="flex-col">
+            <label for="templateSchedule">Jadwal (opsional)
+              <input type="datetime-local" name="templateSchedule" id="templateSchedule" value="2024-04-01T10:00">
+            </label>
+          </div>
+          <div class="flex-col">
+            <label for="templateSpeed">Kecepatan Pengiriman
+              <select name="templateSpeed" id="templateSpeed" required>
+                <option value="fast">Fast (360/menit)</option>
+                <option value="normal" selected>Normal (120/menit)</option>
+                <option value="slow">Slow (60/menit)</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" id="templateSubmitBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+          </svg>
+          Kirim Template
+        </button>
+      </form>
+    </div>
+
+    <div class="tab-content" id="tab-group">
+      <form id="groupForm" autocomplete="off">
+        <label for="groupId">ID Grup WhatsApp
+          <input type="text" name="groupId" id="groupId" required placeholder="6281234567890-1234567890@g.us">
+          <span class="hint">Format: [nomor]-[timestamp]@g.us</span>
+        </label>
+
+        <label for="groupMessage">Pesan
+          <textarea name="groupMessage" id="groupMessage" required placeholder="Tulis pesan untuk grup..."></textarea>
+        </label>
+
+        <div class="flex-row">
+          <div class="flex-col">
+            <label for="groupType">Tipe Pesan
+              <select name="groupType" id="groupType">
+                <option value="text" selected>Text</option>
+                <option value="media">Media</option>
+              </select>
+            </label>
+          </div>
+          <div class="flex-col">
+            <label for="groupPriority">Prioritas
+              <select name="groupPriority" id="groupPriority">
+                <option value="1" selected>Tinggi</option>
+                <option value="2">Normal</option>
+                <option value="3">Rendah</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div id="groupMediaOptions" class="hidden">
+          <label for="groupMediaUrl">URL Media
+            <input type="text" name="groupMediaUrl" id="groupMediaUrl" placeholder="https://example.com/image.jpg">
+          </label>
+          <label for="groupCaption">Caption Media
+            <input type="text" name="groupCaption" id="groupCaption" placeholder="Caption untuk media">
+          </label>
+        </div>
+
+        <div class="flex-row">
+          <div class="flex-col">
+            <label for="groupSchedule">Jadwal (opsional)
+              <input type="datetime-local" name="groupSchedule" id="groupSchedule">
+            </label>
+          </div>
+          <div class="flex-col">
+            <label for="groupSpeed">Kecepatan Pengiriman
+              <select name="groupSpeed" id="groupSpeed" required>
+                <option value="fast">Fast (360/menit)</option>
+                <option value="normal" selected>Normal (120/menit)</option>
+                <option value="slow">Slow (60/menit)</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" id="groupSubmitBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+          </svg>
+          Kirim ke Grup
+        </button>
+      </form>
+    </div>
+    
+    <div class="tab-content" id="tab-monitoring">
+      <div class="card">
+        <h3>Status Broadcast</h3>
+        <label for="jobId">Job ID
+          <div class="flex-row">
+            <input type="text" id="jobId" placeholder="Masukkan Job ID">
+            <button class="btn btn-sm" id="checkStatusBtn" style="margin-top:6px;width:auto;">Cek Status</button>
+          </div>
+        </label>
+        
+        <div id="jobStatus" class="hidden">
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-stats">
+              <span>Progress: <strong id="progressPercent">0%</strong></span>
+              <span>Status: <strong id="jobStateDisplay">-</strong></span>
+            </div>
+          </div>
+          
+          <div class="stat-container">
+            <div class="stat-box">
+              <h3 id="sentCount">0</h3>
+              <p class="status-sent">Terkirim</p>
+            </div>
+            <div class="stat-box">
+              <h3 id="failedCount">0</h3>
+              <p class="status-failed">Gagal</p>
+            </div>
+            <div class="stat-box">
+              <h3 id="waitingCount">0</h3>
+              <p class="status-waiting">Menunggu</p>
+            </div>
+            <div class="stat-box">
+              <h3 id="skippedCount">0</h3>
+              <p class="status-skipped">Dilewati</p>
+            </div>
+          </div>
+          
+          <div class="chart-container">
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="tab-blacklist">
+      <div class="card">
+        <h3>Manajemen Blacklist</h3>
+        <p>Kontak dalam blacklist tidak akan menerima broadcast meskipun tercantum dalam daftar kontak.</p>
+        
+        <label for="blacklistContact">Tambah ke Blacklist
+          <div class="flex-row">
+            <input type="text" id="blacklistContact" placeholder="6281234567890">
+            <button class="btn btn-sm" id="addBlacklistBtn" style="margin-top:6px;width:auto;">Tambah</button>
+          </div>
+          <div class="hint">Pisahkan dengan koma untuk banyak nomor</div>
+        </label>
+        
+        <div style="margin-top:24px;">
+          <div class="flex-row" style="align-items:center;margin-bottom:12px;">
+            <h4 style="margin:0">Daftar Blacklist</h4>
+            <button class="btn btn-sm btn-outline" id="refreshBlacklistBtn" style="margin-left:auto;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path>
+              </svg>
+              Refresh
+            </button>
+          </div>
+          <div id="blacklistContainer" class="contacts-preview" style="max-height:200px;">
+            <p class="hint">Loading blacklist...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="result" class="hidden"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fungsi untuk menampilkan alert
+      function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 15px 25px;
+          border-radius: 8px;
+          color: white;
+          font-weight: 500;
+          z-index: 1000;
+          animation: slideIn 0.3s ease-out;
+        `;
+        
+        // Set background color based on type
+        switch(type) {
+          case 'success':
+            alertDiv.style.backgroundColor = '#27ae60';
+            break;
+          case 'danger':
+            alertDiv.style.backgroundColor = '#e74c3c';
+            break;
+          case 'warning':
+            alertDiv.style.backgroundColor = '#f39c12';
+            break;
+          default:
+            alertDiv.style.backgroundColor = '#3498db';
+        }
+        
+        alertDiv.textContent = message;
+        document.body.appendChild(alertDiv);
+        
+        // Remove alert after 3 seconds
+        setTimeout(() => {
+          alertDiv.style.animation = 'slideOut 0.3s ease-in';
+          setTimeout(() => alertDiv.remove(), 300);
+        }, 3000);
+      }
+
+      // Add CSS for animations
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+
+      // Set default values for broadcast form
+      document.getElementById('contacts').value = "6281234567890\n6289876543210\n6287654321098";
+      document.getElementById('message').value = "Halo {{nomor}}, ini adalah pesan broadcast test. Terima kasih telah bergabung dengan kami!";
+      document.getElementById('apiKey').value = "550dae6069b58048d7882fa5e57e78b32562881434bd85a3";
+      document.getElementById('connectionId').value = "device-1";
+      
+      // Set default values for template form
+      document.getElementById('templateName').value = "promo-ramadhan";
+      document.getElementById('templateVariables').value = '{"nama": "John", "event": "Promo Ramadhan", "link": "https://example.com/promo-ramadhan"}';
+      document.getElementById('templateContacts').value = "6281234567890\n6289876543210\n6287654321098";
+      document.getElementById('templateApiKey').value = "550dae6069b58048d7882fa5e57e78b32562881434bd85a3";
+      
+      // Update preview for broadcast form
+      updateBroadcastPreview();
+      
+      // Tab switching
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+        });
+      });
+      
+      // Toggle media options based on message type
+      document.getElementById('type').addEventListener('change', function() {
+        const mediaOptions = document.getElementById('mediaOptions');
+        if (this.value === 'media') {
+          mediaOptions.classList.remove('hidden');
+          updateMediaPreview(); // Update preview when showing media options
+        } else {
+          mediaOptions.classList.add('hidden');
+        }
+      });
+      
+      // Update preview for broadcast form
+      function updateBroadcastPreview() {
+        const message = document.getElementById('message').value;
+        const previewContainer = document.getElementById('preview-container');
+        const previewMessage = document.getElementById('previewMessage');
+        
+        if (message.trim()) {
+          previewContainer.classList.remove('hidden');
+          const samplePhone = '6281234567890';
+          let preview = message.replace(/{{nomor}}/g, samplePhone);
+          previewMessage.textContent = preview;
+        } else {
+          previewContainer.classList.add('hidden');
+        }
+      }
+      
+      // Update contacts preview
+      function updateContactsPreview() {
+        const contacts = document.getElementById('contacts').value.split('\n').filter(c => c.trim());
+        const previewEl = document.getElementById('previewContacts');
+        document.getElementById('contactCount').textContent = contacts.length;
+        
+        previewEl.innerHTML = contacts.slice(0, 10).map(c => `<span class="tag tag-blue">${c}</span>`).join(' ');
+        if (contacts.length > 10) {
+          previewEl.innerHTML += ` <span class="hint">dan ${contacts.length - 10} lainnya</span>`;
+        }
+      }
+      
+      // Update media preview
+      function updateMediaPreview() {
+        const mediaUrl = document.getElementById('mediaUrl').value;
+        const caption = document.getElementById('caption').value;
+        const mediaPreviewContainer = document.getElementById('media-preview-container');
+        const mediaPreview = document.getElementById('mediaPreview');
+        
+        if (mediaUrl.trim()) {
+          mediaPreviewContainer.classList.remove('hidden');
+          
+          // Extract file extension
+          const ext = mediaUrl.split('.').pop().toLowerCase();
+          
+          // Check if it's an image
+          if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+            // Image preview
+            mediaPreview.innerHTML = `
+              <img src="${mediaUrl}" class="media-preview-image" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgZmlsbD0iIzk5OSI+R2FtYmFyPC90ZXh0Pjwvc3ZnPg=='; this.alt='Preview tidak tersedia';">
+              ${caption ? `<div class="media-preview-caption">${caption}</div>` : ''}
+            `;
+          } else if (['mp4', 'mov', 'avi', 'webm'].includes(ext)) {
+            // Video preview
+            mediaPreview.innerHTML = `
+              <div class="media-preview-doc">
+                <div class="icon">▶️</div>
+                <div class="details">
+                  <div class="filename">${mediaUrl.split('/').pop()}</div>
+                  <div class="mimetype">Video</div>
+                </div>
+              </div>
+              ${caption ? `<div class="media-preview-caption">${caption}</div>` : ''}
+            `;
+          } else {
+            // Document/other file preview
+            let icon = '📄';
+            let type = 'Document';
+            
+            if (['pdf'].includes(ext)) { icon = '📑'; type = 'PDF Document'; }
+            else if (['doc', 'docx'].includes(ext)) { icon = '📝'; type = 'Word Document'; }
+            else if (['xls', 'xlsx'].includes(ext)) { icon = '📊'; type = 'Excel Spreadsheet'; }
+            else if (['mp3', 'wav', 'ogg'].includes(ext)) { icon = '🎵'; type = 'Audio File'; }
+            
+            mediaPreview.innerHTML = `
+              <div class="media-preview-doc">
+                <div class="icon">${icon}</div>
+                <div class="details">
+                  <div class="filename">${mediaUrl.split('/').pop()}</div>
+                  <div class="mimetype">${type}</div>
+                </div>
+              </div>
+              ${caption ? `<div class="media-preview-caption">${caption}</div>` : ''}
+            `;
+          }
+        } else {
+          mediaPreviewContainer.classList.add('hidden');
+        }
+      }
+      
+      // Update template media preview
+      function updateTemplateMediaPreview() {
+        const mediaUrl = document.getElementById('templateMediaUrl').value;
+        const caption = document.getElementById('templateCaption').value;
+        const mediaPreviewContainer = document.getElementById('template-media-preview-container');
+        const mediaPreview = document.getElementById('templateMediaPreview');
+        
+        if (mediaUrl.trim()) {
+          mediaPreviewContainer.classList.remove('hidden');
+          
+          // Extract file extension
+          const ext = mediaUrl.split('.').pop().toLowerCase();
+          
+          // Check if it's an image
+          if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+            // Image preview
+            mediaPreview.innerHTML = `
+              <img src="${mediaUrl}" class="media-preview-image" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgZmlsbD0iIzk5OSI+R2FtYmFyPC90ZXh0Pjwvc3ZnPg=='; this.alt='Preview tidak tersedia';">
+              ${caption ? `<div class="media-preview-caption">${caption}</div>` : ''}
+            `;
+          } else if (['mp4', 'mov', 'avi', 'webm'].includes(ext)) {
+            // Video preview
+            mediaPreview.innerHTML = `
+              <div class="media-preview-doc">
+                <div class="icon">▶️</div>
+                <div class="details">
+                  <div class="filename">${mediaUrl.split('/').pop()}</div>
+                  <div class="mimetype">Video</div>
+                </div>
+              </div>
+              ${caption ? `<div class="media-preview-caption">${caption}</div>` : ''}
+            `;
+          } else {
+            // Document/other file preview
+            let icon = '📄';
+            let type = 'Document';
+            
+            if (['pdf'].includes(ext)) { icon = '📑'; type = 'PDF Document'; }
+            else if (['doc', 'docx'].includes(ext)) { icon = '📝'; type = 'Word Document'; }
+            else if (['xls', 'xlsx'].includes(ext)) { icon = '📊'; type = 'Excel Spreadsheet'; }
+            else if (['mp3', 'wav', 'ogg'].includes(ext)) { icon = '🎵'; type = 'Audio File'; }
+            
+            mediaPreview.innerHTML = `
+              <div class="media-preview-doc">
+                <div class="icon">${icon}</div>
+                <div class="details">
+                  <div class="filename">${mediaUrl.split('/').pop()}</div>
+                  <div class="mimetype">${type}</div>
+                </div>
+              </div>
+              ${caption ? `<div class="media-preview-caption">${caption}</div>` : ''}
+            `;
+          }
+        } else {
+          mediaPreviewContainer.classList.add('hidden');
+        }
+      }
+      
+      // Add event listeners for preview updates
+      document.getElementById('message').addEventListener('input', updateBroadcastPreview);
+      document.getElementById('mediaUrl').addEventListener('input', updateMediaPreview);
+      document.getElementById('caption').addEventListener('input', updateMediaPreview);
+      document.getElementById('templateMediaUrl').addEventListener('input', updateTemplateMediaPreview);
+      document.getElementById('templateCaption').addEventListener('input', updateTemplateMediaPreview);
+      
+      // Initial preview updates
+      updateContactsPreview();
+      updateBroadcastPreview();
+      
+      // Call initially to handle default values
+      if (document.getElementById('mediaUrl').value) {
+        updateMediaPreview();
+      }
+      if (document.getElementById('templateMediaUrl').value) {
+        updateTemplateMediaPreview();
+      }
+      
+      // Status checking and chart
+      let statusChart = null;
+      
+      document.getElementById('checkStatusBtn').addEventListener('click', function() {
+        const jobId = document.getElementById('jobId').value.trim();
+        if (!jobId) return;
+        
+        // Simulate API call (replace with actual API)
+        fetchJobStatus(jobId);
+      });
+      
+      function fetchJobStatus(jobId) {
+        // In a real app, replace with actual API fetch
+        const mockData = {
+          jobId: jobId,
+          state: "active",
+          progress: 65,
+          result: {
+            sent: 65,
+            failed: 12,
+            waiting: 20,
+            skipped: 3
+          }
+        };
+        
+        updateStatusUI(mockData);
+      }
+      
+      function updateStatusUI(data) {
+        document.getElementById('jobStatus').classList.remove('hidden');
+        
+        // Update progress
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        progressFill.style.width = `${data.progress}%`;
+        progressPercent.textContent = `${data.progress}%`;
+        
+        // Update state
+        document.getElementById('jobStateDisplay').textContent = data.state;
+        
+        // Update stats
+        document.getElementById('sentCount').textContent = data.result.sent;
+        document.getElementById('failedCount').textContent = data.result.failed;
+        document.getElementById('waitingCount').textContent = data.result.waiting;
+        document.getElementById('skippedCount').textContent = data.result.skipped;
+        
+        // Update chart
+        updateStatusChart(data.result);
+      }
+      
+      function updateStatusChart(data) {
+        const ctx = document.getElementById('statusChart').getContext('2d');
+        
+        if (statusChart) {
+          statusChart.destroy();
+        }
+        
+        statusChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ['Terkirim', 'Gagal', 'Menunggu', 'Dilewati'],
+            datasets: [{
+              data: [data.sent, data.failed, data.waiting, data.skipped],
+              backgroundColor: ['#27ae60', '#e74c3c', '#f39c12', '#95a5a6']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                position: 'bottom'
+              }
+            }
+          }
+        });
+      }
+      
+      // Blacklist management
+      document.getElementById('refreshBlacklistBtn').addEventListener('click', loadBlacklist);
+      
+      document.getElementById('addBlacklistBtn').addEventListener('click', function() {
+        const input = document.getElementById('blacklistContact');
+        const contacts = input.value.trim().split(',').map(c => c.trim()).filter(c => c);
+        
+        if (contacts.length === 0) return;
+        
+        // In a real app, make API call to add to blacklist
+        alert(`${contacts.length} kontak berhasil ditambahkan ke blacklist`);
+        input.value = '';
+        loadBlacklist();
+      });
+      
+      function loadBlacklist() {
+        const container = document.getElementById('blacklistContainer');
+        container.innerHTML = '<p class="hint">Loading blacklist...</p>';
+        
+        // In a real app, fetch from API
+        setTimeout(() => {
+          const mockBlacklist = ['6281234567890', '6289876543210', '6287654321098'];
+          if (mockBlacklist.length === 0) {
+            container.innerHTML = '<p class="hint">Tidak ada kontak di blacklist</p>';
+          } else {
+            container.innerHTML = mockBlacklist.map(c => {
+              return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #eee;">
+                <span>${c}</span>
+                <button class="btn btn-sm btn-outline" style="margin:0;padding:4px 8px;" data-number="${c}">Hapus</button>
+              </div>`;
+            }).join('');
+          }
+        }, 500);
+      }
+      
+      // Load initial blacklist
+      loadBlacklist();
+      
+      // Function to get connection ID from Redis
+      async function getConnectionId(apiKey) {
+        try {
+          const response = await fetch('/api/connections', {
+            headers: {
+              'Authorization': `Bearer ${apiKey}`
+            }
+          });
+          const data = await response.json();
+          if (data && data.connections && data.connections.length > 0) {
+            return data.connections[0].id; // Return first active connection
+          }
+          return null;
+        } catch (err) {
+          console.error('Error getting connection ID:', err);
+          return null;
+        }
+      }
+
+      // Template form handling
+      document.getElementById('templateForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+
+        try {
+          const templateName = document.getElementById('templateName').value;
+          const templateVariables = document.getElementById('templateVariables').value;
+          const templateContacts = document.getElementById('templateContacts').value;
+          const templateSchedule = document.getElementById('templateSchedule').value;
+          const templateSpeed = document.getElementById('templateSpeed').value;
+          const templateType = document.getElementById('templateType').value;
+          const templateMediaUrl = document.getElementById('templateMediaUrl').value;
+          const templateCaption = document.getElementById('templateCaption').value;
+          const templateApiKey = document.getElementById('templateApiKey').value;
+          const connectionId = document.getElementById('connectionIdTemplate').value;
+
+          // Validate required fields
+          if (!templateName || !templateVariables || !templateContacts || !templateSpeed || !templateApiKey) {
+            throw new Error('Nama template, variabel, kontak, kecepatan, dan API key wajib diisi');
+          }
+
+          // Parse variables
+          let variables;
+          try {
+            variables = JSON.parse(templateVariables);
+          } catch (err) {
+            throw new Error('Format variabel tidak valid. Gunakan format JSON');
+          }
+
+          // Get contacts
+          const contacts = templateContacts.split('\n')
+            .map(c => c.trim())
+            .filter(c => c);
+
+          if (contacts.length === 0) {
+            throw new Error('Minimal satu kontak harus diisi');
+          }
+
+          // Prepare request data
+          const data = {
+            templateName,
+            variables,
+            contacts,
+            speed: templateSpeed,
+            type: templateType
+          };
+
+          // Add optional fields
+          if (templateSchedule) {
+            data.schedule = templateSchedule;
+          }
+          if (connectionId) {
+            data.connectionId = connectionId;
+          }
+          if (templateType === 'media') {
+            if (!templateMediaUrl) {
+              throw new Error('URL media wajib diisi untuk tipe media');
+            }
+            data.mediaUrl = templateMediaUrl;
+            if (templateCaption) {
+              data.caption = templateCaption;
+            }
+          }
+
+          // Send request
+          const response = await fetch('/broadcast/template', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${templateApiKey}`
+            },
+            body: JSON.stringify(data)
+          });
+
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || 'Failed to send template message');
+          }
+
+          // Show success message
+          showAlert('success', 'Template message queued successfully! Job ID: ' + result.dbJobId);
+          
+          // Switch to monitoring tab
+          document.querySelectorAll('.tab')[3].click();
+          document.getElementById('jobId').value = result.dbJobId;
+          document.getElementById('checkStatusBtn').click();
+          
+          // Reset form
+          e.target.reset();
+          document.getElementById('templateName').value = 'promo-ramadhan';
+          document.getElementById('templateApiKey').value = '550dae6069b58048d7882fa5e57e78b32562881434bd85a3';
+          document.getElementById('templateVariables').value = '{"nama": "John", "event": "Promo Ramadhan", "link": "https://example.com/promo-ramadhan"}';
+          document.getElementById('templateContacts').value = "6281234567890\n6289876543210\n6287654321098";
+          document.getElementById('connectionIdTemplate').value = "device-1";
+          
+        } catch (err) {
+          showAlert('danger', err.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Send Template';
+        }
+      });
+
+      // Broadcast form handling
+      document.getElementById('broadcastForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+
+        try {
+          const contacts = document.getElementById('contacts').value.split('\n')
+            .map(c => c.trim())
+            .filter(c => c);
+          const message = document.getElementById('message').value;
+          const apiKey = document.getElementById('apiKey').value;
+          const type = document.getElementById('type').value;
+          const speed = document.getElementById('speed').value;
+          const schedule = document.getElementById('schedule').value;
+          const groupTag = document.getElementById('groupTag').value;
+          const mediaUrl = document.getElementById('mediaUrl').value;
+          const caption = document.getElementById('caption').value;
+          const connectionId = document.getElementById('connectionId').value;
+          const maxRetry = document.getElementById('maxRetry').value;
+
+          // Validate required fields
+          if (!contacts.length || !message || !apiKey || !speed) {
+            throw new Error('Kontak, pesan, API key, dan kecepatan wajib diisi');
+          }
+
+          // Prepare request data
+          const data = {
+            contacts,
+            message,
+            speed,
+            type,
+            priority: document.getElementById('priority').value,
+            isBroadcast: true
+          };
+
+          // Add optional fields
+          if (schedule) {
+            data.schedule = schedule;
+          }
+          if (connectionId) {
+            data.connectionId = connectionId;
+          }
+          if (groupTag) {
+            data.groupTag = groupTag;
+          }
+          if (type === 'media') {
+            if (!mediaUrl) {
+              throw new Error('URL media wajib diisi untuk tipe media');
+            }
+            data.mediaUrl = mediaUrl;
+            if (caption) {
+              data.caption = caption;
+            }
+          }
+
+          // Send request
+          const response = await fetch('/broadcast', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(data)
+          });
+
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || 'Failed to send broadcast message');
+          }
+
+          // Show success message
+          showAlert('success', 'Broadcast message queued successfully! Job ID: ' + result.dbJobId);
+          
+          // Switch to monitoring tab
+          document.querySelectorAll('.tab')[3].click();
+          document.getElementById('jobId').value = result.dbJobId;
+          document.getElementById('checkStatusBtn').click();
+          
+          // Reset form
+          e.target.reset();
+          document.getElementById('contacts').value = "6281234567890\n6289876543210\n6287654321098";
+          document.getElementById('message').value = "Halo {{nomor}}, ini adalah pesan broadcast test. Terima kasih telah bergabung dengan kami!";
+          document.getElementById('apiKey').value = "550dae6069b58048d7882fa5e57e78b32562881434bd85a3";
+          
+        } catch (err) {
+          showAlert('danger', err.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+            </svg>
+            Send Broadcast
+          `;
+        }
+      });
+
+      // Group form handling
+      document.getElementById('groupType').addEventListener('change', function() {
+        const mediaOptions = document.getElementById('groupMediaOptions');
+        if (this.value === 'media') {
+          mediaOptions.classList.remove('hidden');
+        } else {
+          mediaOptions.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('groupForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const submitBtn = document.getElementById('groupSubmitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Memproses...';
+
+        // Prepare data
+        const data = {
+          groupId: document.getElementById('groupId').value,
+          message: document.getElementById('groupMessage').value,
+          type: document.getElementById('groupType').value,
+          mediaUrl: document.getElementById('groupMediaUrl').value || undefined,
+          caption: document.getElementById('groupCaption').value || undefined,
+          schedule: document.getElementById('groupSchedule').value || undefined,
+          speed: document.getElementById('groupSpeed').value,
+          connectionId: document.getElementById('connectionId').value || undefined
+        };
+
+        // Send request
+        fetch('/broadcast/group', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${document.getElementById('apiKey').value}`
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result.error) {
+            throw new Error(result.error);
+          }
+          alert('Pesan grup berhasil dijadwalkan!');
+          // Switch to monitoring tab
+          document.querySelectorAll('.tab')[3].click();
+          document.getElementById('jobId').value = result.jobId;
+          document.getElementById('checkStatusBtn').click();
+        })
+        .catch(err => {
+          alert('Error: ' + err.message);
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Kirim ke Grup';
+        });
+      });
+
+      document.getElementById('messageType').addEventListener('change', function() {
+        const textContainer = document.getElementById('textMessageContainer');
+        const mediaContainer = document.getElementById('mediaMessageContainer');
+        const messageInput = document.getElementById('message');
+        const mediaUrlInput = document.getElementById('mediaUrl');
+        const captionInput = document.getElementById('caption');
+
+        if (this.value === 'media') {
+          textContainer.style.display = 'none';
+          mediaContainer.style.display = 'block';
+          messageInput.removeAttribute('required');
+          mediaUrlInput.setAttribute('required', '');
+        } else {
+          textContainer.style.display = 'block';
+          mediaContainer.style.display = 'none';
+          messageInput.setAttribute('required', '');
+          mediaUrlInput.removeAttribute('required');
+        }
+        updatePreview();
+      });
+
+      function updatePreview() {
+        const type = document.getElementById('messageType').value;
+        const preview = document.getElementById('previewMessage');
+        
+        if (type === 'media') {
+          const mediaUrl = document.getElementById('mediaUrl').value;
+          const caption = document.getElementById('caption').value;
+          
+          if (mediaUrl) {
+            preview.innerHTML = `
+              <div style="margin-bottom: 8px;">
+                <img src="${mediaUrl}" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+              </div>
+              ${caption ? `<div>${caption}</div>` : ''}
+            `;
+          } else {
+            preview.innerHTML = '<em>Preview akan muncul setelah URL media diisi</em>';
+          }
+        } else {
+          const message = document.getElementById('message').value;
+          preview.textContent = message || '<em>Preview akan muncul setelah pesan diisi</em>';
+        }
+      }
+
+      document.getElementById('mediaUrl').addEventListener('input', updatePreview);
+      document.getElementById('caption').addEventListener('input', updatePreview);
+      document.getElementById('message').addEventListener('input', updatePreview);
+
+      document.getElementById('broadcastForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const type = document.getElementById('messageType').value;
+        const apiKey = document.getElementById('apiKey').value;
+        const contacts = document.getElementById('contacts').value
+          .split('\n')
+          .map(c => c.trim())
+          .filter(c => c);
+        const speed = document.getElementById('speed').value;
+
+        let messageData = {
+          type,
+          apiKey,
+          contacts,
+          speed
+        };
+
+        if (type === 'media') {
+          messageData.mediaUrl = document.getElementById('mediaUrl').value;
+          messageData.caption = document.getElementById('caption').value;
+        } else {
+          messageData.message = document.getElementById('message').value;
+        }
+
+        try {
+          const response = await fetch('/api/broadcast', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(messageData)
+          });
+
+          const result = await response.json();
+          
+          if (result.success) {
+            showNotification('Broadcast berhasil dimulai!', 'success');
+            document.getElementById('broadcastForm').reset();
+            document.getElementById('apiKey').value = '550dae6069b58048d7882fa5e57e78b32562881434bd85a3';
+            updatePreview();
+          } else {
+            showNotification(result.error || 'Gagal mengirim broadcast', 'error');
+          }
+        } catch (error) {
+          showNotification('Terjadi kesalahan saat mengirim broadcast', 'error');
+          console.error('Error:', error);
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

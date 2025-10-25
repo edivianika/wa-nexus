@@ -1,0 +1,11 @@
+# Supabase Configuration untuk File-Api
+VITE_SUPABASE_URL=https://ovscsiulvdgwamhlkwkq.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92c2NzaXVsdmRnd2FtaGxrd2txIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI1NjY4MjEsImV4cCI6MjA1ODE0MjgyMX0.1BpvEPUYrDETlHFomNO8EsZBmoSypu5GEsJwlIfNCxc
+
+# Server Configuration
+PORT=3001
+
+# Development Configuration
+NODE_ENV=development
+
+

@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .accordion-section {
+            margin-bottom: 10px;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .accordion-header {
+            background: #f1f5f9;
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            border-left: 4px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        .accordion-header:hover {
+            background: #e2e8f0;
+        }
+        .accordion-header h2 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        .accordion-content {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #fff;
+        }
+        .accordion-content.active {
+            max-height: 3000px;
+            padding: 15px;
+            transition: max-height 0.5s ease-in;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .endpoint-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .endpoint-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0;
+        }
+        .endpoint-content.active {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+            padding-top: 15px;
+        }
+        .method {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .path {
+            font-family: monospace;
+            background: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .response {
+            background: #e8f4f8;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .note {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        code {
+            background: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .example {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .updated {
+            border-left: 4px solid #28a745;
+            background-color: #d4edda;
+        }
+        .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+        }
+        .rotate {
+            transform: rotate(180deg);
+        }
+        /* Tombol Expand/Collapse Semua */
+        .control-buttons {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+        .control-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .control-button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>WhatsApp API Documentation</h1>
+    
+    <div class="note updated">
+        <strong>Version:</strong> 1.5.2 (Updated July 2024)
+        <p><strong>Update Highlights:</strong></p>
+        <ul>
+            <li>Redis memory optimization (session TTL 180 days)</li>
+            <li>Kanban board API fixes dan improvements</li>
+            <li>Drip campaign integration with kanban columns</li>
+            <li>Enhanced monitoring & server status</li>
+        </ul>
+    </div>
+    
+    <div class="note">
+        <strong>Catatan Penting:</strong>
+        <ul>
+            <li>Semua endpoint memerlukan API Key dalam header Authorization</li>
+            <li>Format API Key: <code>Bearer &lt;api_key&gt;</code></li>
+            <li>Base URL: <code>http://localhost:3000</code> (sesuaikan dengan server Anda)</li>
+        </ul>
+    </div>
+
+    <div class="control-buttons">
+        <button class="control-button" id="expand-all">Tampilkan Semua</button>
+        <button class="control-button" id="collapse-all">Sembunyikan Semua</button>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>1. Autentikasi</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <p>Semua request harus menyertakan header Authorization dengan format:</p>
+            <pre>Authorization: Bearer your_api_key_here</pre>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>2. Koneksi WhatsApp</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Request QR Code</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/qr/request</p>
+                    <p>Meminta QR code untuk koneksi WhatsApp baru.</p>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "qrCode": "data:image/png;base64,..."
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/qr/request \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Logout</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/logout/:connectionId</p>
+                    <p>Logout dari WhatsApp.</p>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "message": "Berhasil logout dari WhatsApp"
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/logout/your_connection_id \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>3. Manajemen Koneksi</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Buat Koneksi Baru</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/connection/create</p>
+                    <p>Membuat koneksi baru.</p>
+                    <strong>Request Body:</strong>
+                    <pre>{
+    "userId": "user_id",
+    "connectionName": "Nama Koneksi",
+    "expiredDate": "2024-12-31T23:59:59Z" // Opsional
+}</pre>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "connection": {
+        "id": "connection_id",
+        "userId": "user_id",
+        "name": "Nama Koneksi",
+        "status": "initialized",
+        "createdAt": "2024-03-21T10:00:00Z",
+        "expiredDate": "2024-12-31T23:59:59Z",
+        "apiKey": "generated_api_key"
+    }
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/connection/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user_id",
+    "connectionName": "Nama Koneksi"
+  }'</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Daftar Koneksi</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">/api/connections</p>
+                    <p>Mendapatkan daftar koneksi.</p>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "connections": [
+        {
+            "id": "connection_id_1",
+            "name": "Koneksi 1",
+            "phone_number": "628123456789",
+            "connected": true,
+            "created_at": "2024-03-21T10:00:00Z",
+            "webhook_config": { "url": "https://example.com", "triggers": { ... } },
+            "ai_agent_id": "agent_id_1",
+            "user_id": "user_id",
+            "status": "connected",
+            "expired_date": "2024-12-31T23:59:59Z"
+        },
+        {
+            "id": "connection_id_2",
+            "name": "Koneksi 2",
+            "phone_number": null,
+            "connected": false,
+            "created_at": "2024-03-22T10:00:00Z",
+            "webhook_config": null,
+            "ai_agent_id": null,
+            "user_id": "user_id",
+            "status": "initialized",
+            "expired_date": null
+        }
+    ]
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3000/api/connections \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Detail Koneksi</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">/api/connections/:connectionId</p>
+                    <p>Mendapatkan detail koneksi.</p>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "connection": {
+        "id": "connection_id",
+        "name": "Nama Koneksi",
+        "phone_number": "628123456789",
+        "connected": true,
+        "created_at": "2024-03-21T10:00:00Z",
+        "webhook_config": {
+            "url": "https://example.com/webhook",
+            "triggers": {
+                "private": true,
+                "group": false,
+                "broadcast": false,
+                "newsletter": false
+            }
+        },
+        "ai_agent_id": "agent_id",
+        "user_id": "user_id",
+        "status": "connected",
+        "expired_date": "2024-12-31T23:59:59Z"
+    }
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3000/api/connections/connection_id \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Hapus Koneksi</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">DELETE</p>
+                    <p class="path">/api/connection/:connectionId</p>
+                    <p>Menghapus koneksi.</p>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "message": "Koneksi berhasil dihapus"
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X DELETE http://localhost:3000/api/connection/connection_id \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint updated">
+                <div class="endpoint-header">
+                    <h3>Update AI Agent ID</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/connections/:connectionId/agent</p>
+                    <p>Memperbarui AI Agent ID untuk koneksi.</p>
+                    <strong>Request Body:</strong>
+                    <pre>{
+    "agentId": "agent_id"
+}</pre>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "message": "AI Agent berhasil diupdate"
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/connections/connection_id/agent \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agentId": "agent_id"
+  }'</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint updated">
+                <div class="endpoint-header">
+                    <h3>Refresh Koneksi</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/refreshconnection</p>
+                    <p>Memperbarui dan menyegarkan data koneksi berdasarkan ID koneksi.</p>
+                    <strong>Request Headers:</strong>
+                    <pre>device_id: "abcd1234efgh5678" // ID koneksi (kolom id di tabel connections)</pre>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "message": "Koneksi berhasil direfresh",
+    "data": {
+        "connectionId": "abcd1234efgh5678",
+        "deviceId": "628123456789",
+        "status": "connected",
+        "connected": true,
+        "webhookConfigured": true,
+        "agentId": "agent_id",
+        "agentUrl": "https://example.com/agent/webhook"
+    }
+}</pre>
+                    </div>
+                    <div class="note updated">
+                        <strong>Catatan:</strong>
+                        <p>Endpoint ini juga tersedia dalam format GET: <code>/api/refreshconnection/:connectionId</code></p>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/refreshconnection \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "device_id: abcd1234efgh5678"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint updated">
+                <div class="endpoint-header">
+                    <h3>Disconnect WhatsApp</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/disconnect</p>
+                    <p>Memutuskan koneksi WhatsApp dari server. <b>connection_id</b> dapat dihilangkan jika menggunakan <code>Authorization: Bearer &lt;api_key&gt;</code> (akan diambil otomatis dari API key).</p>
+                    <strong>Request Body:</strong>
+                    <pre>{
+    "connection_id": "connection_id" // opsional jika pakai API key
+}</pre>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "message": "WhatsApp berhasil disconnect"
+}</pre>
+                    </div>
+                    <div class="note">
+                        <strong>Catatan:</strong>
+                        <ul>
+                            <li>Jika <code>connection_id</code> tidak diberikan, server akan mengambil dari API key yang digunakan pada header Authorization.</li>
+                            <li>Endpoint ini memerlukan autentikasi Bearer Token.</li>
+                        </ul>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/disconnect \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "connection_id": "connection_id"
+  }'</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>4. Webhook</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Update Webhook</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">PUT</p>
+                    <p class="path">/api/webhook/update</p>
+                    <p>Mengupdate konfigurasi webhook.</p>
+                    <strong>Request Body:</strong>
+                    <pre>{
+    "url": "https://your-webhook-url.com",
+    "triggers": {
+        "private": true,
+        "group": true,
+        "broadcast": false,
+        "newsletter": false
+    }
+}</pre>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "message": "Webhook berhasil diupdate",
+    "data": {
+        "connectionId": "connection_id",
+        "webhook": {
+            "url": "https://your-webhook-url.com",
+            "triggers": {
+                "private": true,
+                "group": true,
+                "broadcast": false,
+                "newsletter": false
+            }
+        },
+        "updatedAt": "2024-03-21T10:00:00Z"
+    }
+}</pre>
+                    </div>
+
+                    <div class="note updated">
+                        <strong>Headers Webhook:</strong>
+                        <p>Sistem akan mengirimkan header berikut pada setiap pemanggilan webhook:</p>
+                        <ul>
+                            <li><code>Content-Type</code>: <code>application/json</code> (untuk pesan teks) atau <code>multipart/form-data</code> (untuk pesan dengan media)</li>
+                            <li><code>X-Webhook-Source</code>: <code>whatsapp-api</code></li>
+                            <li><code>X-Connection-Id</code>: ID koneksi pengirim</li>
+                            <li><code>X-Agent-Id</code>: ID agent AI jika tersedia</li>
+                            <li><code>messagetype</code>: Tipe pesan (text, image, video, dll)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X PUT http://localhost:3000/api/webhook/update \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-webhook-url.com",
+    "triggers": {
+        "private": true,
+        "group": true,
+        "broadcast": false,
+        "newsletter": false
+    }
+  }'</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Format Webhook Pesan Teks</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p>Data yang dikirim ke webhook Anda untuk pesan teks:</p>
+                    <pre>{
+    "type": "message",
+    "messageType": "private", // private, group, broadcast, atau newsletter
+    "contentType": "text",
+    "mediaType": null,
+    "agent-id": "AI_AGENT_ID", // ID Agent AI (dari kolom ai_agent_id)
+    "devices-id": "628123456789", // Nomor WhatsApp pengirim
+    "message": {
+        "id": "MESSAGE_ID",
+        "from": "628123456789",
+        "pushName": "Nama Pengirim",
+        "timestamp": "2024-03-21T10:00:00Z",
+        "content": "Isi pesan teks"
+    }
+}</pre>
+                    <div class="note updated">
+                        <strong>Headers Webhook:</strong>
+                        <pre>Content-Type: application/json
+X-Webhook-Source: whatsapp-api
+X-Connection-Id: CONNECTION_ID
+messagetype: text</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Format Webhook Pesan Media</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p>Data yang dikirim ke webhook Anda untuk pesan media:</p>
+                    <pre>{
+    "type": "message",
+    "messageType": "private", // private, group, broadcast, atau newsletter
+    "contentType": "media",
+    "mediaType": "image", // image, video, audio, document, sticker
+    "agent-id": "AI_AGENT_ID", // ID Agent AI (dari kolom ai_agent_id)
+    "devices-id": "628123456789", // Nomor WhatsApp pengirim
+    "message": {
+        "id": "MESSAGE_ID",
+        "from": "628123456789",
+        "pushName": "Nama Pengirim",
+        "timestamp": "2024-03-21T10:00:00Z",
+        "content": "Caption media (jika ada)",
+        "media": {
+            "type": "image", // image, video, audio, document, sticker
+            "mimetype": "image/jpeg",
+            "filename": "image.jpg",
+            "hasCaption": true
+        }
+    }
+}</pre>
+                    <div class="note updated">
+                        <strong>Headers Webhook (untuk Media):</strong>
+                        <pre>Content-Type: multipart/form-data
+X-Webhook-Source: whatsapp-api
+X-Connection-Id: CONNECTION_ID
+messagetype: image</pre>
+                        <p>Untuk media, file akan dikirim sebagai form-data dengan field <code>file</code> dan metadata dalam field <code>metadata</code>. Field metadata akan berisi JSON dengan format yang sama seperti di atas, termasuk <code>agent-id</code> dan <code>devices-id</code>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>5. Pesan</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Kirim Pesan Teks</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/sendbroadcast</p>
+                    <p>Mengirim pesan teks. <b>connectionId</b> dapat dihilangkan jika menggunakan <code>Authorization: Bearer &lt;api_key&gt;</code> (akan diambil otomatis dari API key). <b>type</b> juga opsional dan default ke <code>text</code>.</p>
+                    <strong>Request Body (JSON):</strong>
+                    <pre>{
+    "to": "628123456789",
+    "message": "Halo, ini adalah pesan dari API"
+    // "type": "text" // opsional, default text
+    // "connectionId": "..." // opsional jika pakai API key
+}</pre>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "messageId": "message_id",
+    "to": "628123456789"
+}</pre>
+                    </div>
+                    <div class="note">
+                        <strong>Catatan:</strong>
+                        <ul>
+                            <li>Jika <code>connectionId</code> tidak diberikan, server akan mengambil dari API key yang digunakan pada header Authorization.</li>
+                            <li>Field <code>type</code> default ke <code>text</code> jika tidak diberikan.</li>
+                            <li>Nomor tujuan dapat diformat sebagai <code>628123456789</code>, <code>08123456789</code>, atau <code>+628123456789</code>.</li>
+                        </ul>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/sendbroadcast \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "to": "628123456789",
+    "message": "Halo, ini adalah pesan dari API"
+  }'
+</pre>
+                    </div>
+                </div>
+            </div>
+            <!-- Tambahan: Kirim Pesan Media -->
+            <div class="endpoint updated">
+                <div class="endpoint-header">
+                    <h3>Kirim Pesan Media (Multi-file & Flexible Type)</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/sendbroadcast</p>
+                    <p>Mengirim pesan media (gambar, video, audio, PDF, dokumen, dsb). Mendukung upload beberapa file sekaligus (multi-file). <b>connectionId</b> dapat dihilangkan jika menggunakan <code>Authorization: Bearer &lt;api_key&gt;</code>.</p>
+                    <strong>Request (multipart/form-data):</strong>
+                    <ul>
+                        <li><code>to</code> <b>(wajib)</b>: Nomor tujuan (format WhatsApp JID, misal: 6281234567890@s.whatsapp.net)</li>
+                        <li><code>type</code> (opsional): <code>media</code> (jika tidak diberikan, akan dideteksi otomatis jika ada file)</li>
+                        <li><code>caption</code> (opsional): Caption untuk media</li>
+                        <li><code>files</code> <b>(wajib)</b>: Satu atau lebih file media (gambar, video, audio, dokumen, PDF, dll)</li>
+                    </ul>
+                    <div class="example">
+                        <strong>Contoh cURL (multi-file):</strong>
+                        <pre>curl -X POST http://localhost:3000/api/sendbroadcast \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "to=6281234567890@s.whatsapp.net" \
+  -F "caption=Ini caption opsional" \
+  -F "files=@/path/to/image.jpg" \
+  -F "files=@/path/to/video.mp4" \
+  -F "files=@/path/to/document.pdf"
+</pre>
+                    </div>
+                    <div class="note updated">
+                        <strong>Catatan:</strong>
+                        <ul>
+                            <li>Jika <code>connectionId</code> tidak diberikan, server akan mengambil dari API key yang digunakan pada header Authorization.</li>
+                            <li>Field <code>type</code> akan otomatis <code>media</code> jika ada file upload.</li>
+                            <li>Field <code>files</code> dapat dikirim lebih dari satu kali untuk multi-file.</li>
+                            <li>Tipe file yang didukung: <b>image, video, audio, pdf, document, dll</b>.</li>
+                            <li>Jika ingin mengirim media dari URL, gunakan field <code>mediaUrl</code> (opsional, <b>hanya satu file per request</b>).</li>
+                        </ul>
+                    </div>
+                    <div class="response">
+                        <strong>Response (multi-file):</strong>
+                        <pre>{
+  "success": true,
+  "results": [
+    { "success": true, "messageId": "msgid1", "to": "6281234567890@s.whatsapp.net", "file": "image.jpg" },
+    { "success": true, "messageId": "msgid2", "to": "6281234567890@s.whatsapp.net", "file": "video.mp4" },
+    { "success": true, "messageId": "msgid3", "to": "6281234567890@s.whatsapp.net", "file": "document.pdf" }
+  ]
+}</pre>
+                    </div>
+                </div>
+            </div>
+            <!-- Troubleshooting section -->
+            <div class="endpoint updated">
+                <div class="endpoint-header">
+                    <h3>Troubleshooting /api/sendbroadcast</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <ul>
+                        <li><b>connectionId, to, dan type diperlukan</b>: Pastikan API key valid dan koneksi sudah dibuat. Jika tidak pakai connectionId di body, gunakan API key yang benar.</li>
+                        <li><b>Koneksi tidak ditemukan</b>: Cek apakah koneksi sudah aktif dan API key benar.</li>
+                        <li><b>WhatsApp belum terhubung</b>: Pastikan sudah scan QR dan status koneksi <code>connected</code>.</li>
+                        <li><b>Tipe pesan tidak didukung</b>: Gunakan <code>type: "text"</code> atau <code>type: "media"</code> sesuai kebutuhan.</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Endpoint: Kirim Efek Typing -->
+            <div class="endpoint updated">
+                <div class="endpoint-header">
+                    <h3>Kirim Efek Typing</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/send-typing</p>
+                    <p>Mengirim efek typing (mengetik) ke nomor WhatsApp tujuan. <b>connectionId</b> dapat dihilangkan jika menggunakan <code>Authorization: Bearer &lt;api_key&gt;</code>.</p>
+                    <strong>Request Body (JSON):</strong>
+                    <pre>{
+    "to": "628123456789", // nomor tujuan (bisa 628xxxx, 08xxxx, +628xxxx, atau sudah JID)
+    // "connectionId": "..." // opsional jika pakai API key
+}</pre>
+                    <div class="note updated">
+                        <strong>Catatan:</strong>
+                        <ul>
+                            <li>Nomor tujuan (<code>to</code>) akan otomatis diformat ke JID WhatsApp (<code>@s.whatsapp.net</code>) jika belum.</li>
+                            <li>Format yang didukung: <code>628xxxx</code>, <code>08xxxx</code>, <code>+628xxxx</code>, atau sudah <code>628xxxx@s.whatsapp.net</code>.</li>
+                        </ul>
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "message": "Efek typing dikirim",
+    "to": "628123456789@s.whatsapp.net"
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/send-typing \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "to": "628123456789"
+  }'
+</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Endpoint: Kirim Pesan Beruntut (Bubble) -->
+            <div class="endpoint updated">
+                <div class="endpoint-header">
+                    <h3>Kirim Pesan Beruntut (Bubble)</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/sendbubble</p>
+                    <p>Mengirim beberapa pesan dengan dua mode pengiriman: serial (bertahap) atau gabungan (satu pesan).</p>
+                    
+                    <strong>Request Body (JSON):</strong>
+                    <p>Mendukung beberapa format:</p>
+                    
+                    <div class="format">
+                        <h4>Format 1 (Direkomendasikan):</h4>
+                        <pre>{
+    "to": "628123456789",
+    "messages": [
+        "Halo kak! 👋 Apa kabar?",
+        "Ada yang ingin kamu tanyakan?"
+    ],
+    "quoted": "message_id", // opsional, ID pesan yang direply
+    "typingEffect": true, // opsional, default true
+    "multibubble": true // opsional, default true
+}</pre>
+                    </div>
+
+                    <div class="format">
+                        <h4>Format 2:</h4>
+                        <pre>{
+    "to": "628123456789",
+    "message": [
+        "Pesan pertama",
+        "Pesan kedua"
+    ],
+    "quoted": "message_id", // opsional
+    "typingEffect": false, // nonaktifkan efek typing
+    "multibubble": false // gabungkan semua pesan menjadi satu
+}</pre>
+                    </div>
+
+                    <div class="note">
+                        <strong>Catatan Penting:</strong>
+                        <ul>
+                            <li>Format yang paling direkomendasikan adalah Format 1 (menggunakan <code>messages</code> di root level).</li>
+                            <li>Pastikan array pesan tidak kosong.</li>
+                            <li>Parameter <code>quoted</code> (opsional):
+                                <ul>
+                                    <li>Jika <code>multibubble: true</code>: Quoted diterapkan ke pesan pertama</li>
+                                    <li>Jika <code>multibubble: false</code>: Quoted diterapkan ke pesan gabungan</li>
+                                </ul>
+                            </li>
+                            <li>Parameter <code>typingEffect</code> (opsional):
+                                <ul>
+                                    <li><code>true</code> (default): Efek typing diaktifkan</li>
+                                    <li><code>false</code>: Efek typing dinonaktifkan</li>
+                                </ul>
+                            </li>
+                            <li>Parameter <code>multibubble</code> (opsional):
+                                <ul>
+                                    <li><code>true</code> (default):
+                                        <ul>
+                                            <li>Pesan dikirim satu per satu secara bergantian</li>
+                                            <li>Ada jeda waktu antar pesan (dikonfigurasi di <code>BUBBLE_DELAY</code>)</li>
+                                            <li>Efek typing ditampilkan sebelum setiap pesan (jika diaktifkan)</li>
+                                        </ul>
+                                    </li>
+                                    <li><code>false</code>:
+                                        <ul>
+                                            <li>Semua pesan digabung menjadi satu dengan enter</li>
+                                            <li>Dikirim sebagai satu pesan</li>
+                                            <li>Efek typing ditampilkan sekali sebelum pengiriman (jika diaktifkan)</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>Jeda waktu antar pesan dapat dikonfigurasi di <code>.env</code> dengan variabel <code>BUBBLE_DELAY</code> (dalam milidetik, default: 1000ms).</li>
+                            <li>Jika satu pesan gagal, proses akan dilanjutkan ke pesan berikutnya.</li>
+                            <li>Nomor tujuan dapat diformat sebagai <code>628123456789</code>, <code>08123456789</code>, atau <code>+628123456789</code>.</li>
+                        </ul>
+                    </div>
+
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "results": [
+        {
+            "success": true,
+            "messageId": "message_id_1",
+            "to": "628123456789@s.whatsapp.net",
+            "message": "Pesan pertama",
+            "quoted": true,
+            "multibubble": true
+        },
+        {
+            "success": true,
+            "messageId": "message_id_2",
+            "to": "628123456789@s.whatsapp.net",
+            "message": "Pesan kedua",
+            "quoted": false,
+            "multibubble": true
+        }
+    ]
+}</pre>
+                    </div>
+
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/sendbubble \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "to": "628123456789",
+    "messages": [
+        "Halo kak! 👋 Apa kabar?",
+        "Ada yang ingin kamu tanyakan?"
+    ],
+    "quoted": "message_id",
+    "multibubble": true
+  }'</pre>
+                    </div>
+
+                    <div class="note updated">
+                        <strong>Error Response:</strong>
+                        <p>Jika format request tidak valid, akan mendapatkan response:</p>
+                        <pre>{
+    "success": false,
+    "error": "Format pesan tidak valid",
+    "example": {
+        "to": "628123456789",
+        "messages": [
+            "Pesan pertama",
+            "Pesan kedua"
+        ]
+    }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>6. Status Koneksi</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="note">
+                <strong>Status Koneksi:</strong>
+                <ul>
+                    <li><code>initialized</code>: Koneksi baru dibuat</li>
+                    <li><code>qr_ready</code>: QR code siap untuk scan</li>
+                    <li><code>connected</code>: Terhubung ke WhatsApp</li>
+                    <li><code>disconnected</code>: Koneksi terputus</li>
+                    <li><code>logged_out</code>: Logout dari WhatsApp</li>
+                    <li><code>error</code>: Terjadi kesalahan</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>7. Status Redis</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Cek Status Redis</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">/api/status/redis</p>
+                    <p>Memeriksa status koneksi Redis.</p>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "status": "connected",
+    "details": {
+        "testWrite": true,
+        "testRead": true,
+        "testDelete": true
+    }
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3000/api/status/redis \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>8. Redis Optimization</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="note updated">
+                <strong>Redis Memory Management:</strong>
+                <p>Server menggunakan beberapa mekanisme untuk mengoptimalkan penggunaan memori Redis:</p>
+                <ul>
+                    <li><strong>TTL pada Session:</strong> Semua session WhatsApp disimpan dengan TTL 180 hari</li>
+                    <li><strong>BullMQ Jobs:</strong> Semua job BullMQ memiliki TTL untuk mencegah penumpukan data</li>
+                    <li><strong>Auto Cleanup:</strong> Script pembersihan Redis berjalan secara terjadwal setiap hari pukul 3 pagi</li>
+                </ul>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Lihat Statistik Redis</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">/api/redis/stats</p>
+                    <p>Mendapatkan statistik penggunaan Redis.</p>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "stats": {
+        "totalKeys": 35,
+        "memory": {
+            "used": "12.5MB",
+            "peak": "14.2MB",
+            "limit": "100MB"
+        },
+        "keysByType": {
+            "string": 25,
+            "list": 3,
+            "hash": 5,
+            "zset": 2
+        },
+        "keysWithTTL": 35,
+        "keysWithoutTTL": 0
+    }
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3000/api/redis/stats \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Jalankan Pembersihan Redis Manual</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/redis/cleanup</p>
+                    <p>Menjalankan proses pembersihan Redis secara manual.</p>
+                    <div class="note">
+                        <strong>Perhatian:</strong> Endpoint ini memerlukan hak akses admin.
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "cleaned": {
+        "orphanKeys": 5,
+        "expiredJobs": 3,
+        "totalRemoved": 8
+    },
+    "ttlAdded": 12
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/redis/cleanup \
+  -H "Authorization: Bearer YOUR_ADMIN_API_KEY"</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>9. Monitoring</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Status Server</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">/api/status/server</p>
+                    <p>Memeriksa status server API WhatsApp.</p>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+    "success": true,
+    "status": "healthy",
+    "uptime": "5d 6h 32m",
+    "version": "1.5.2",
+    "connections": {
+        "total": 12,
+        "active": 8,
+        "inactive": 4
+    },
+    "queue": {
+        "waiting": 3,
+        "active": 1,
+        "delayed": 5
+    },
+    "memory": {
+        "usage": "250MB",
+        "redis": "12.5MB"
+    }
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3000/api/status/server \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tambahan: Broadcast WhatsApp (Bulk) -->
+    <div class="accordion-section">
+        <div class="accordion-header">
+            <h2>10. Broadcast WhatsApp</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <p>Modul Broadcast WhatsApp adalah layanan terpisah yang berjalan di port 3004. Modul ini memungkinkan Anda untuk mengirim pesan massal ke banyak kontak dengan fitur-fitur canggih.</p>
+            
+            <div class="note updated">
+                <strong>Update Terbaru:</strong>
+                <ul>
+                    <li>Peningkatan kecepatan pengiriman: Fast (360 pesan/menit), Normal (120 pesan/menit), Slow (60 pesan/menit)</li>
+                    <li>Split batch otomatis untuk kontak >500 (memecah menjadi batch 500 dengan interval 1 menit)</li>
+                    <li>Auto-retry untuk pesan gagal (konfigurasi maksimal retry)</li>
+                    <li>Toleransi 15 detik untuk schedule time validation</li>
+                    <li>ConnectionId menjadi opsional untuk single-device setup</li>
+                    <li>Template pesan dinamis dengan personalisasi</li>
+                </ul>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Kirim Broadcast</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">http://localhost:3004/broadcast</p>
+                    <p>Mengirim pesan massal ke banyak kontak.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "contacts": ["6281234567890", "6289876543210"],
+  "message": "Halo {{nomor}}, ini pesan broadcast!",
+  "connectionId": "device-1", // opsional
+  "type": "text", // text atau media
+  "mediaUrl": "https://example.com/image.jpg", // jika type=media
+  "caption": "Caption untuk media", // jika type=media
+  "groupTag": "customer-premium", // opsional, filter kontak
+  "priority": 1, // 1=tinggi, 2=normal, 3=rendah
+  "schedule": "2024-05-15T10:00:00Z", // opsional, format ISO
+  "speed": "normal", // fast, normal, slow
+  "maxRetry": 2 // jumlah percobaan ulang jika gagal
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3004/broadcast \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contacts": ["6281234567890", "6289876543210"],
+    "message": "Halo {{nomor}}, ini pesan broadcast!",
+    "connectionId": "device-1",
+    "type": "text",
+    "priority": 1,
+    "speed": "normal",
+    "maxRetry": 2
+  }'</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response untuk single batch:</strong>
+                        <pre>{
+  "status": "queued", 
+  "jobId": "broadcast-123",
+  "connectionId": "device-1",
+  "schedule": "2024-05-15T10:00:00Z", 
+  "estimatedStart": "2024-05-15T10:00:00Z",
+  "speed": "normal"
+}</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response untuk multi-batch (split otomatis):</strong>
+                        <pre>{
+  "status": "queued-batch",
+  "totalContacts": 1500,
+  "batchSize": 500,
+  "totalBatch": 3,
+  "jobs": [
+    {
+      "jobId": "batch1-123",
+      "batch": 1,
+      "contacts": 500,
+      "schedule": "2024-05-15T10:00:00Z"
+    },
+    {
+      "jobId": "batch2-123",
+      "batch": 2,
+      "contacts": 500,
+      "schedule": "2024-05-15T10:01:00Z"
+    },
+    {
+      "jobId": "batch3-123",
+      "batch": 3,
+      "contacts": 500,
+      "schedule": "2024-05-15T10:02:00Z"
+    }
+  ]
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Import Kontak</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">http://localhost:3004/contacts/import</p>
+                    <p>Mengimpor daftar kontak ke penyimpanan.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "contacts": ["6281234567890", "6289876543210"],
+  "connectionId": "device-1" // opsional
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3004/contacts/import \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contacts": ["6281234567890", "6289876543210"],
+    "connectionId": "device-1"
+  }'</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+  "success": true,
+  "imported": 2,
+  "contacts": ["6281234567890", "6289876543210"]
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Blacklist Kontak</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">http://localhost:3004/contacts/blacklist</p>
+                    <p>Menambahkan kontak ke blacklist/opt-out.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "contacts": ["6281234567890"],
+  "connectionId": "device-1" // opsional
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3004/contacts/blacklist \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contacts": ["6281234567890"],
+    "connectionId": "device-1"
+  }'</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+  "success": true,
+  "blacklisted": 1,
+  "contacts": ["6281234567890"]
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Group Tagging</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">http://localhost:3004/contacts/group/customer-premium</p>
+                    <p>Menambahkan kontak ke grup tertentu untuk segmentasi.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "contacts": ["6289876543210"],
+  "connectionId": "device-1" // opsional
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3004/contacts/group/customer-premium \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contacts": ["6289876543210"],
+    "connectionId": "device-1"
+  }'</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+  "success": true,
+  "added": 1,
+  "groupTag": "customer-premium",
+  "contacts": ["6289876543210"]
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Daftar Kontak</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">http://localhost:3004/contacts</p>
+                    <p>Mendapatkan daftar kontak dalam sistem.</p>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3004/contacts?connectionId=device-1 \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+  "success": true,
+  "contacts": ["6281234567890", "6289876543210", "6287654321098"],
+  "total": 3,
+  "connectionId": "device-1"
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Status Broadcast</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">http://localhost:3004/broadcast/:jobId/status</p>
+                    <p>Mendapatkan status job broadcast.</p>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3004/broadcast/broadcast-123/status \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+  "jobId": "broadcast-123",
+  "state": "active",
+  "progress": 65,
+  "result": {
+    "sent": 65,
+    "failed": 12,
+    "waiting": 20,
+    "skipped": 3,
+    "connectionId": "device-1",
+    "schedule": "2024-05-15T10:00:00Z",
+    "speed": "normal",
+    "maxRetry": 2
+  }
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Hasil Broadcast</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">http://localhost:3004/broadcast/:jobId/results</p>
+                    <p>Mendapatkan hasil pengiriman per nomor.</p>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3004/broadcast/broadcast-123/results \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+  "jobId": "broadcast-123",
+  "results": {
+    "6281234567890": {
+      "status": "sent",
+      "messageId": "wamid.123456",
+      "attempts": 1
+    },
+    "6289876543210": {
+      "status": "failed",
+      "error": "Invalid number",
+      "attempts": 3
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Daftar Job Tertunda</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">http://localhost:3004/broadcast/jobs/delayed</p>
+                    <p>Mendapatkan daftar job broadcast yang tertunda.</p>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3004/broadcast/jobs/delayed \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>{
+  "success": true,
+  "jobs": [
+    {
+      "id": "broadcast-123",
+      "state": "delayed",
+      "data": {
+        "contacts": ["6281234567890", "6289876543210"],
+        "message": "Halo {{nomor}}, ini pesan broadcast!",
+        "connectionId": "device-1",
+        "schedule": "2024-05-15T10:00:00Z",
+        "speed": "normal"
+      },
+      "timestamp": 1641234567890,
+      "delay": 60000,
+      "estimatedRun": "2024-05-15T10:00:00Z"
+    }
+  ]
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DRIP CAMPAIGN SECTION START -->
+    <div class="accordion-section updated">
+        <div class="accordion-header">
+            <h2>Drip Campaign & Scheduler</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <h3>Apa itu Drip Campaign?</h3>
+            <p>Drip campaign adalah serangkaian pesan otomatis yang dikirim ke subscriber sesuai urutan dan jeda waktu tertentu. Cocok untuk edukasi, onboarding, atau nurturing customer.</p>
+
+            <h3>Struktur Database</h3>
+            <ul>
+                <li><b>drip_campaigns</b>: Data utama campaign</li>
+                <li><b>drip_messages</b>: Daftar pesan dalam campaign (urutan & delay)</li>
+                <li><b>drip_subscribers</b>: Daftar subscriber tiap campaign</li>
+                <li><b>drip_logs</b>: Log pengiriman pesan drip</li>
+            </ul>
+
+            <h3>Endpoint API</h3>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>List Campaign</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">/drip/campaigns</p>
+                    <p>List semua drip campaign.</p>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Buat Campaign Baru</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/drip/campaigns</p>
+                    <p>Buat drip campaign baru.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "name": "Welcome Series",
+  "description": "Drip untuk user baru"
+}</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Detail Campaign</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">/drip/campaigns/:id</p>
+                    <p>Detail drip campaign.</p>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Tambah Subscriber</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/drip/campaigns/:id/subscribers</p>
+                    <p>Tambah subscriber ke campaign.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "contact_id": "6281234567890"
+}</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Tambah Pesan Drip</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/drip/campaigns/:id/messages</p>
+                    <p>Tambah pesan drip ke campaign.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "message": "Selamat datang!",
+  "type": "text",
+  "delay": 0,
+  "order": 1
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Drip Scheduler</h3>
+            <p>Scheduler otomatis akan berjalan setiap menit untuk mengecek subscriber dan mengirim pesan drip sesuai urutan dan delay. Scheduler ini bisa dijalankan dengan:</p>
+            <pre>cd Server/src/jobs
+node dripScheduler.js</pre>
+            <p>Setiap pesan yang dikirim akan dicatat di <b>drip_logs</b> dan update <b>last_message_sent_at</b> pada subscriber.</p>
+            <div class="note">
+                <b>Catatan:</b> Untuk mengirim pesan WhatsApp sungguhan, integrasikan bagian <code>console.log(`[DripScheduler] Sending drip message ...`)</code> ke endpoint broadcast WhatsApp Anda.
+            </div>
+        </div>
+    </div>
+    <!-- DRIP CAMPAIGN SECTION END -->
+
+    <!-- KANBAN BOARD SECTION START -->
+    <div class="accordion-section updated">
+        <div class="accordion-header">
+            <h2>Kanban Board API</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <h3>Kanban Board untuk Manajemen Kontak</h3>
+            <p>API Kanban Board memungkinkan Anda mengorganisir kontak dalam format visual drag-and-drop untuk meningkatkan produktivitas dan visibilitas pipeline.</p>
+
+            <h3>Endpoint API</h3>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Mendapatkan Semua Board</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">/api/kanban/boards</p>
+                    <p>Mendapatkan semua board milik user.</p>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3000/api/kanban/boards \
+  -H "x-user-id: YOUR_USER_ID"</pre>
+                    </div>
+                    <div class="response">
+                        <strong>Response:</strong>
+                        <pre>[
+  {
+    "id": "uuid-1",
+    "title": "Sales Pipeline",
+    "owner_id": "user-uuid",
+    "created_at": "2024-05-15T10:00:00Z",
+    "updated_at": "2024-05-15T10:00:00Z"
+  }
+]</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Membuat Board Baru</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/kanban/boards</p>
+                    <p>Membuat board baru dengan kolom default.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "title": "Customer Journey"
+}</pre>
+                    </div>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X POST http://localhost:3000/api/kanban/boards \
+  -H "x-user-id: YOUR_USER_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Customer Journey"
+  }'</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Detail Board dengan Kolom dan Kontak</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">GET</p>
+                    <p class="path">/api/kanban/boards/:id</p>
+                    <p>Mendapatkan detail board dengan semua kolom dan kontak di dalamnya.</p>
+                    <div class="example">
+                        <strong>Contoh cURL:</strong>
+                        <pre>curl -X GET http://localhost:3000/api/kanban/boards/uuid-1 \
+  -H "x-user-id: YOUR_USER_ID"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Membuat Kolom Baru</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/kanban/boards/:boardId/columns</p>
+                    <p>Membuat kolom baru dalam board.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "title": "Qualified Lead",
+  "position": 1,
+  "drip_campaign_id": "campaign-uuid" // opsional
+}</pre>
+                    </div>
+                    <div class="note">
+                        <strong>Integrasi Drip Campaign:</strong>
+                        <p>Jika Anda menambahkan <code>drip_campaign_id</code>, kontak yang masuk ke kolom ini akan otomatis didaftarkan ke drip campaign tersebut.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Update Urutan Kontak</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">PUT</p>
+                    <p class="path">/api/kanban/columns/:columnId/order</p>
+                    <p>Memperbarui urutan kontak dalam kolom.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "contactIds": ["123", "456", "789"]
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Tambah Kontak ke Kolom</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">POST</p>
+                    <p class="path">/api/kanban/columns/:columnId/contacts</p>
+                    <p>Menambahkan kontak ke kolom.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "contactId": "123"
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <h3>Pindahkan Kontak</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="endpoint-content">
+                    <p class="method">PUT</p>
+                    <p class="path">/api/kanban/contacts/:contactId/move</p>
+                    <p>Memindahkan kontak ke kolom lain.</p>
+                    <div class="example">
+                        <strong>Request Body:</strong>
+                        <pre>{
+  "newColumnId": "column-uuid-2"
+}</pre>
+                    </div>
+                    <div class="note updated">
+                        <strong>Automasi:</strong>
+                        <p>Saat memindahkan kontak antar kolom, sistem secara otomatis menangani:</p>
+                        <ul>
+                            <li>Unsubscribe dari drip campaign kolom sebelumnya (jika ada)</li>
+                            <li>Subscribe ke drip campaign kolom baru (jika dikonfigurasi)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- KANBAN BOARD SECTION END -->
+
+    <footer>
+        <p>Last updated: <span id="last-updated"></span></p>
+    </footer>
+
+    <script>
+        // Update timestamp
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set last updated date
+            document.getElementById('last-updated').textContent = new Date().toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Aktifkan fungsi accordion untuk section
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    // Toggle class active pada content
+                    const content = this.nextElementSibling;
+                    content.classList.toggle('active');
+                    
+                    // Animasi pada icon
+                    const icon = this.querySelector('.toggle-icon');
+                    icon.classList.toggle('rotate');
+                });
+            });
+
+            // Aktifkan fungsi accordion untuk endpoint
+            document.querySelectorAll('.endpoint-header').forEach(header => {
+                header.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event bubbling
+                    
+                    // Toggle class active pada content
+                    const content = this.nextElementSibling;
+                    content.classList.toggle('active');
+                    
+                    // Animasi pada icon
+                    const icon = this.querySelector('.toggle-icon');
+                    icon.classList.toggle('rotate');
+                });
+            });
+
+            // Button untuk expand semua
+            document.getElementById('expand-all').addEventListener('click', function() {
+                document.querySelectorAll('.accordion-content, .endpoint-content').forEach(content => {
+                    content.classList.add('active');
+                });
+                document.querySelectorAll('.toggle-icon').forEach(icon => {
+                    icon.classList.add('rotate');
+                });
+            });
+
+            // Button untuk collapse semua
+            document.getElementById('collapse-all').addEventListener('click', function() {
+                document.querySelectorAll('.accordion-content, .endpoint-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.querySelectorAll('.toggle-icon').forEach(icon => {
+                    icon.classList.remove('rotate');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

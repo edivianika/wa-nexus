@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentasi API Upload File</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #3498db;
+        }
+        code {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 5px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        pre {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        .endpoint {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 10px 15px;
+            margin: 15px 0;
+        }
+        .method {
+            font-weight: bold;
+            color: #e91e63;
+        }
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .parameter-table th, .parameter-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .parameter-table th {
+            background-color: #f2f2f2;
+        }
+        .response-example {
+            margin: 20px 0;
+        }
+        .nav-buttons {
+            margin: 20px 0;
+        }
+        .nav-buttons a {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .nav-buttons a:hover {
+            background-color: #45a049;
+        }
+        
+        /* Copy Button Style */
+        .copy-btn {
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+        .copy-btn:hover {
+            background-color: #e0e0e0;
+        }
+        .copy-btn:active {
+            background-color: #d0d0d0;
+        }
+        .copy-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .copy-text {
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            flex-grow: 1;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .copied-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        /* Accordion Style */
+        .accordion {
+            margin-bottom: 20px;
+            border: 1px solid #e3f2fd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .accordion-header {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .accordion-header:hover {
+            background-color: #bbdefb;
+        }
+        .accordion-content {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #fff;
+        }
+        .accordion-content.active {
+            max-height: 10000px;
+            padding: 15px;
+        }
+        .endpoint-description {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .section-title {
+            border-bottom: 2px solid #bbdefb;
+            padding-bottom: 5px;
+            margin: 20px 0 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-buttons">
+        <a href="/">Halaman Utama</a>
+    </div>
+    
+    <h1>Dokumentasi API Upload File</h1>
+    
+    <p>API ini menyediakan endpoint untuk mengunggah dan mengelola file dengan format tertentu. Berikut adalah dokumentasi lengkap tentang penggunaan API.</p>
+    
+    <h2>Gambaran Umum</h2>
+    <p>API ini dikembangkan menggunakan NodeJS, Express, dan Multer untuk menangani upload file dengan batasan dan aturan tertentu. Informasi file yang diupload juga disimpan ke database Supabase.</p>
+    
+    <h2>Fitur Utama</h2>
+    <ul>
+        <li>Upload file dengan format yang didukung (PDF, DOC, DOCX, XLS, XLSX, TXT)</li>
+        <li>Batasan ukuran file maksimal 5MB</li>
+        <li>Penamaan file otomatis dengan format: AgenId + Nama File</li>
+        <li>Penyimpanan file di direktori terpisah</li>
+        <li>Validasi tipe file dan ukuran</li>
+        <li>Penyimpanan metadata file ke database Supabase</li>
+        <li>Mendapatkan daftar file berdasarkan parameter</li>
+        <li>Menghapus file berdasarkan ID file, User ID, atau Agent ID</li>
+    </ul>
+    
+    <h2>Endpoint API</h2>
+    
+    <div class="accordion">
+        <div class="accordion-header">
+            <span><span class="method">POST</span> /upload - Upload File</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint-description">
+                <p>Mengunggah file dengan batasan format dan ukuran tertentu. Metadata file akan disimpan di Supabase.</p>
+            </div>
+            
+            <h4 class="section-title">Parameter</h4>
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Tipe</th>
+                        <th>Deskripsi</th>
+                        <th>Wajib</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>file</td>
+                        <td>File (Form Data)</td>
+                        <td>File yang akan diunggah</td>
+                        <td>Ya</td>
+                    </tr>
+                    <tr>
+                        <td>agent_id / AgenId</td>
+                        <td>String (Form Data)</td>
+                        <td>ID Agen untuk penamaan file</td>
+                        <td>Ya</td>
+                    </tr>
+                    <tr>
+                        <td>user_id / UserID</td>
+                        <td>String (Form Data)</td>
+                        <td>ID Pengguna yang melakukan upload</td>
+                        <td>Ya</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 class="section-title">Format File yang Didukung</h4>
+            <ul>
+                <li>PDF (.pdf)</li>
+                <li>Microsoft Word (.doc, .docx)</li>
+                <li>Microsoft Excel (.xls, .xlsx)</li>
+                <li>Text File (.txt)</li>
+                <li>CSV File (.csv)</li>
+                <li>JSON File (.json)</li>
+                <li>EPUB File (.epub)</li>
+            </ul>
+            
+            <h4 class="section-title">Batasan</h4>
+            <ul>
+                <li>Ukuran maksimal file: 5MB</li>
+                <li>AgenId harus disediakan</li>
+                <li>Hanya format file yang didukung yang dapat diunggah</li>
+            </ul>
+            
+            <h4 class="section-title">Contoh Penggunaan</h4>
+            <p><strong>Upload file dengan agent_id dan user_id:</strong></p>
+            <div class="copy-container">
+                <div class="copy-text">curl -X POST -F "file=@/path/to/yourfile.pdf" -F "agent_id=6bcd2091-4590-471c-a312-cf2c02d84531" -F "user_id=237971ba-dd8b-45b1-9641-92eb7199906a" http://localhost:1212/upload</div>
+                <button class="copy-btn" onclick="copyToClipboard('curl -X POST -F &quot;file=@/path/to/yourfile.pdf&quot; -F &quot;agent_id=6bcd2091-4590-471c-a312-cf2c02d84531&quot; -F &quot;user_id=237971ba-dd8b-45b1-9641-92eb7199906a&quot; http://localhost:1212/upload')">Salin</button>
+            </div>
+            
+            <p><strong>Upload file dengan alternatif nama parameter:</strong></p>
+            <div class="copy-container">
+                <div class="copy-text">curl -X POST -F "file=@/path/to/yourfile.xlsx" -F "AgenId=6bcd2091-4590-471c-a312-cf2c02d84531" -F "UserID=237971ba-dd8b-45b1-9641-92eb7199906a" http://localhost:1212/upload</div>
+                <button class="copy-btn" onclick="copyToClipboard('curl -X POST -F &quot;file=@/path/to/yourfile.xlsx&quot; -F &quot;AgenId=6bcd2091-4590-471c-a312-cf2c02d84531&quot; -F &quot;UserID=237971ba-dd8b-45b1-9641-92eb7199906a&quot; http://localhost:1212/upload')">Salin</button>
+            </div>
+            
+            <h4 class="section-title">Webhook Integration</h4>
+            <p>Setelah file berhasil diunggah dan disimpan ke database, sistem akan memanggil webhook (jika dikonfigurasi) dengan detail berikut:</p>
+            <ul>
+                <li>URL webhook diambil dari variabel lingkungan <code>UPLOAD_WEBHOOK</code></li>
+                <li>File dikirim sebagai binary data dalam body request</li>
+                <li>Header berikut disertakan dalam panggilan webhook:
+                    <ul>
+                        <li><code>Content-Type</code>: MIME type dari file yang diunggah</li>
+                        <li><code>agent-id</code>: ID agen yang terkait dengan file</li>
+                        <li><code>file-id</code>: ID file dari database</li>
+                        <li><code>file-name</code>: <strong>Nama asli file</strong> (bukan nama file yang disimpan di server)</li>
+                        <li><code>file-download-url</code>: URL untuk mengunduh file (perlu menambahkan header file-id)</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h4 class="section-title">Contoh Response Sukses dengan Webhook</h4>
+            <pre><code>{
+  "success": true,
+  "message": "File berhasil diupload",
+  "file": {
+    "filename": "temp_1745224746182_Tabel Struktur Prompt Veo 2.pdf",
+    "originalName": "Tabel Struktur Prompt Veo 2.pdf",
+    "size": 256789,
+    "mimetype": "application/pdf"
+  },
+  "supabase": {
+    "success": true,
+    "message": "Data berhasil disimpan ke Supabase"
+  },
+  "webhook": {
+    "success": true,
+    "status": 200,
+    "message": "Webhook berhasil dipanggil"
+  }
+}</code></pre>
+            
+            <h4 class="section-title">Contoh Response Error</h4>
+            <pre><code>{
+  "success": false,
+  "message": "Ukuran file melebihi batas maksimum 5MB"
+}</code></pre>
+        </div>
+    </div>
+    
+    <div class="accordion">
+        <div class="accordion-header">
+            <span><span class="method">GET</span> /files - Mendapatkan Daftar File</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint-description">
+                <p>Mendapatkan daftar file berdasarkan parameter. Filter file berdasarkan user_id atau agent_id.</p>
+            </div>
+            
+            <h4 class="section-title">Parameter Header</h4>
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Tipe</th>
+                        <th>Deskripsi</th>
+                        <th>Wajib</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>user-id</td>
+                        <td>String (Header)</td>
+                        <td>Filter file berdasarkan ID pengguna</td>
+                        <td>Ya (salah satu)</td>
+                    </tr>
+                    <tr>
+                        <td>agent-id</td>
+                        <td>String (Header)</td>
+                        <td>Filter file berdasarkan ID agen</td>
+                        <td>Ya (salah satu)</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 class="section-title">Contoh Penggunaan</h4>
+            <p><strong>Mendapatkan file berdasarkan user_id:</strong></p>
+            <div class="copy-container">
+                <div class="copy-text">curl -X GET -H "user-id: 237971ba-dd8b-45b1-9641-92eb7199906a" http://localhost:1212/files</div>
+                <button class="copy-btn" onclick="copyToClipboard('curl -X GET -H &quot;user-id: 237971ba-dd8b-45b1-9641-92eb7199906a&quot; http://localhost:1212/files')">Salin</button>
+            </div>
+            
+            <p><strong>Mendapatkan file berdasarkan agent_id:</strong></p>
+            <div class="copy-container">
+                <div class="copy-text">curl -X GET -H "agent-id: 6bcd2091-4590-471c-a312-cf2c02d84531" http://localhost:1212/files</div>
+                <button class="copy-btn" onclick="copyToClipboard('curl -X GET -H &quot;agent-id: 6bcd2091-4590-471c-a312-cf2c02d84531&quot; http://localhost:1212/files')">Salin</button>
+            </div>
+            
+            <h4 class="section-title">Contoh Response</h4>
+            <pre><code>{
+  "success": true,
+  "message": "Data file berhasil diambil",
+  "files": [
+    {
+      "id": 1,
+      "original_filename": "yourfile.pdf",
+      "mimetype": "application/pdf",
+      "size": 256789,
+      "file_path": "Files/6bcd2091-4590-471c-a312-cf2c02d84531_yourfile.pdf",
+      "user_id": "237971ba-dd8b-45b1-9641-92eb7199906a",
+      "agent_id": "6bcd2091-4590-471c-a312-cf2c02d84531",
+      "status": "pending",
+      "created_at": "2024-10-26T06:30:00.000Z"
+    }
+  ]
+}</code></pre>
+        </div>
+    </div>
+    
+    <div class="accordion">
+        <div class="accordion-header">
+            <span><span class="method">DELETE</span> /files - Menghapus File Berdasarkan ID</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint-description">
+                <p>Menghapus file berdasarkan ID file dari database dan server. File ID dikirim melalui header.</p>
+            </div>
+            
+            <h4 class="section-title">Parameter Header</h4>
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Tipe</th>
+                        <th>Deskripsi</th>
+                        <th>Wajib</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>file-id</td>
+                        <td>String (Header)</td>
+                        <td>ID dari file yang akan dihapus</td>
+                        <td>Ya</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 class="section-title">Contoh Penggunaan</h4>
+            <div class="copy-container">
+                <div class="copy-text">curl -X DELETE -H "file-id: 123" http://localhost:1212/files</div>
+                <button class="copy-btn" onclick="copyToClipboard('curl -X DELETE -H &quot;file-id: 123&quot; http://localhost:1212/files')">Salin</button>
+            </div>
+            
+            <h4 class="section-title">Contoh Response</h4>
+            <pre><code>{
+  "success": true,
+  "message": "File berhasil dihapus",
+  "data": {
+    "id": 123,
+    "original_filename": "yourfile.pdf",
+    "mimetype": "application/pdf",
+    "size": 256789,
+    "file_path": "Files/6bcd2091-4590-471c-a312-cf2c02d84531_yourfile.pdf",
+    "user_id": "237971ba-dd8b-45b1-9641-92eb7199906a",
+    "agent_id": "6bcd2091-4590-471c-a312-cf2c02d84531",
+    "status": "pending",
+    "created_at": "2024-10-26T06:30:00.000Z"
+  }
+}</code></pre>
+        </div>
+    </div>
+    
+    <div class="accordion">
+        <div class="accordion-header">
+            <span><span class="method">DELETE</span> /files/user - Menghapus File Berdasarkan User ID dari Header</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint-description">
+                <p>Menghapus semua file yang terkait dengan user ID tertentu dari database dan server. User ID dikirim melalui header.</p>
+            </div>
+            
+            <h4 class="section-title">Parameter Header</h4>
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Tipe</th>
+                        <th>Deskripsi</th>
+                        <th>Wajib</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>user-id</td>
+                        <td>String (Header)</td>
+                        <td>ID pengguna yang filenya akan dihapus</td>
+                        <td>Ya</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 class="section-title">Contoh Penggunaan</h4>
+            <div class="copy-container">
+                <div class="copy-text">curl -X DELETE -H "user-id: 237971ba-dd8b-45b1-9641-92eb7199906a" http://localhost:1212/files/user</div>
+                <button class="copy-btn" onclick="copyToClipboard('curl -X DELETE -H &quot;user-id: 237971ba-dd8b-45b1-9641-92eb7199906a&quot; http://localhost:1212/files/user')">Salin</button>
+            </div>
+            
+            <h4 class="section-title">Contoh Response</h4>
+            <pre><code>{
+  "success": true,
+  "message": "2 file berhasil dihapus",
+  "data": [
+    {
+      "id": 1,
+      "original_filename": "document.pdf",
+      "mimetype": "application/pdf",
+      "size": 256789,
+      "file_path": "Files/6bcd2091-4590-471c-a312-cf2c02d84531_document.pdf",
+      "user_id": "237971ba-dd8b-45b1-9641-92eb7199906a",
+      "agent_id": "6bcd2091-4590-471c-a312-cf2c02d84531",
+      "status": "pending",
+      "created_at": "2024-10-26T06:30:00.000Z"
+    },
+    {
+      "id": 2,
+      "original_filename": "report.xlsx",
+      "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 123456,
+      "file_path": "Files/6bcd2091-4590-471c-a312-cf2c02d84531_report.xlsx",
+      "user_id": "237971ba-dd8b-45b1-9641-92eb7199906a",
+      "agent_id": "6bcd2091-4590-471c-a312-cf2c02d84531",
+      "status": "pending",
+      "created_at": "2024-10-25T15:45:30.000Z"
+    }
+  ]
+}</code></pre>
+        </div>
+    </div>
+    
+    <div class="accordion">
+        <div class="accordion-header">
+            <span><span class="method">DELETE</span> /files/agent - Menghapus File Berdasarkan Agent ID dari Header</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint-description">
+                <p>Menghapus semua file yang terkait dengan agent ID tertentu dari database dan server. Agent ID dikirim melalui header.</p>
+            </div>
+            
+            <h4 class="section-title">Parameter Header</h4>
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Tipe</th>
+                        <th>Deskripsi</th>
+                        <th>Wajib</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>agent-id</td>
+                        <td>String (Header)</td>
+                        <td>ID agen yang filenya akan dihapus</td>
+                        <td>Ya</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 class="section-title">Contoh Penggunaan</h4>
+            <div class="copy-container">
+                <div class="copy-text">curl -X DELETE -H "agent-id: 6bcd2091-4590-471c-a312-cf2c02d84531" http://localhost:1212/files/agent</div>
+                <button class="copy-btn" onclick="copyToClipboard('curl -X DELETE -H &quot;agent-id: 6bcd2091-4590-471c-a312-cf2c02d84531&quot; http://localhost:1212/files/agent')">Salin</button>
+            </div>
+            
+            <h4 class="section-title">Contoh Response</h4>
+            <pre><code>{
+  "success": true,
+  "message": "3 file berhasil dihapus",
+  "data": [
+    {
+      "id": 1,
+      "original_filename": "document.pdf",
+      "mimetype": "application/pdf",
+      "size": 256789,
+      "file_path": "Files/6bcd2091-4590-471c-a312-cf2c02d84531_document.pdf",
+      "user_id": "USR123",
+      "agent_id": "6bcd2091-4590-471c-a312-cf2c02d84531",
+      "status": "pending",
+      "created_at": "2024-10-26T06:30:00.000Z"
+    },
+    {
+      "id": 2,
+      "original_filename": "report.xlsx",
+      "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 123456,
+      "file_path": "Files/6bcd2091-4590-471c-a312-cf2c02d84531_report.xlsx",
+      "user_id": "USR456",
+      "agent_id": "6bcd2091-4590-471c-a312-cf2c02d84531",
+      "status": "pending",
+      "created_at": "2024-10-25T15:45:30.000Z"
+    },
+    {
+      "id": 3,
+      "original_filename": "data.txt",
+      "mimetype": "text/plain",
+      "size": 2345,
+      "file_path": "Files/6bcd2091-4590-471c-a312-cf2c02d84531_data.txt",
+      "user_id": "USR789",
+      "agent_id": "6bcd2091-4590-471c-a312-cf2c02d84531",
+      "status": "pending",
+      "created_at": "2024-10-24T09:15:45.000Z"
+    }
+  ]
+}</code></pre>
+        </div>
+    </div>
+    
+    <div class="accordion">
+        <div class="accordion-header">
+            <span><span class="method">GET</span> /download - Mengunduh File Berdasarkan ID dari Header</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="endpoint-description">
+                <p>Mengunduh file berdasarkan ID file. Endpoint ini akan mengirimkan file langsung ke browser untuk diunduh. File ID dikirim melalui header.</p>
+            </div>
+            
+            <h4 class="section-title">Parameter Header</h4>
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Tipe</th>
+                        <th>Deskripsi</th>
+                        <th>Wajib</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>file-id</td>
+                        <td>String (Header)</td>
+                        <td>ID dari file yang akan diunduh</td>
+                        <td>Ya</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 class="section-title">Contoh Penggunaan</h4>
+            <div class="copy-container">
+                <div class="copy-text">curl -H "file-id: 123" http://localhost:1212/download -o file_terunduh.pdf</div>
+                <button class="copy-btn" onclick="copyToClipboard('curl -H &quot;file-id: 123&quot; http://localhost:1212/download -o file_terunduh.pdf')">Salin</button>
+            </div>
+            <div class="copy-container">
+                <div class="copy-text">curl -H "file-id: 123" -O -J http://localhost:1212/download</div>
+                <button class="copy-btn" onclick="copyToClipboard('curl -H &quot;file-id: 123&quot; -O -J http://localhost:1212/download')">Salin</button>
+            </div>
+            
+            <h4 class="section-title">Response</h4>
+            <p>Jika sukses, endpoint ini akan langsung mengirimkan file sebagai respons dengan header yang sesuai:</p>
+            <ul>
+                <li><code>Content-Disposition: attachment; filename="nama_asli_file.ext"</code> - Mengatur nama file saat diunduh</li>
+                <li><code>Content-Type: [mime-type]</code> - Mengatur tipe konten file</li>
+            </ul>
+            
+            <h4 class="section-title">Respons Error</h4>
+            <pre><code>// File tidak ditemukan di database
+{
+  "success": false,
+  "message": "File tidak ditemukan"
+}
+
+// File fisik tidak ditemukan di server
+{
+  "success": false,
+  "message": "File fisik tidak ditemukan di server"
+}
+
+// Error saat mengambil informasi file
+{
+  "success": false,
+  "message": "Gagal mendapatkan informasi file",
+  "error": "Detail error..."
+}</code></pre>
+        </div>
+    </div>
+    
+    <h2>Integrasi Supabase</h2>
+    <p>API ini terintegrasi dengan Supabase untuk menyimpan metadata file yang diupload. Data yang disimpan meliputi:</p>
+    <ul>
+        <li>ID Agen (agent_id)</li>
+        <li>ID Pengguna (user_id)</li>
+        <li>Nama file yang disimpan (file_path)</li>
+        <li>Nama asli file (original_filename)</li>
+        <li>Tipe MIME (mimetype)</li>
+        <li>Ukuran file (size)</li>
+        <li>Status file (status)</li>
+        <li>Tanggal upload (created_at)</li>
+    </ul>
+    <p>Jika penyimpanan ke Supabase gagal, file tetap akan disimpan di server dan respons akan memberikan informasi tentang kesalahan Supabase.</p>
+    
+    <h2>Script Pengujian API</h2>
+    <p>Berikut adalah contoh bash script untuk menguji semua endpoint API:</p>
+    
+    <pre><code>#!/bin/bash
+
+# URL dasar API
+BASE_URL="http://localhost:1212"
+
+# ID untuk pengujian
+AGENT_ID="6bcd2091-4590-471c-a312-cf2c02d84531"
+USER_ID="237971ba-dd8b-45b1-9641-92eb7199906a"
+FILE_PATH="/path/to/test.pdf"  # Sesuaikan dengan path file Anda
+
+echo "=== Upload File ==="
+UPLOAD_RESPONSE=$(curl -s -X POST \
+  -F "file=@$FILE_PATH" \
+  -F "agent_id=$AGENT_ID" \
+  -F "user_id=$USER_ID" \
+  $BASE_URL/upload)
+echo $UPLOAD_RESPONSE | json_pp
+
+echo ""
+echo "=== Mendapatkan File Berdasarkan User ID ==="
+curl -s -X GET -H "user-id: $USER_ID" $BASE_URL/files | json_pp
+
+echo ""
+echo "=== Mendapatkan File Berdasarkan Agent ID ==="
+curl -s -X GET -H "agent-id: $AGENT_ID" $BASE_URL/files | json_pp
+
+# Dapatkan ID file yang baru diupload (contoh)
+# FILE_ID=$(echo $UPLOAD_RESPONSE | grep -o '"id":[0-9]*' | head -1 | cut -d':' -f2)
+FILE_ID="123"  # Ganti dengan ID file yang valid dari database Anda
+
+echo ""
+echo "=== Menghapus File Berdasarkan ID ==="
+curl -s -X DELETE -H "file-id: $FILE_ID" "$BASE_URL/files" | json_pp
+
+echo ""
+echo "=== Menghapus Semua File User ==="
+curl -s -X DELETE -H "user-id: $USER_ID" "$BASE_URL/files/user" | json_pp
+
+echo ""
+echo "=== Menghapus Semua File Agent ==="
+curl -s -X DELETE -H "agent-id: $AGENT_ID" "$BASE_URL/files/agent" | json_pp
+
+echo ""
+echo "=== Download File ==="
+echo "Mengunduh file dengan ID $FILE_ID ke file_terunduh.pdf..."
+curl -s -H "file-id: $FILE_ID" -o "file_terunduh.pdf" "$BASE_URL/download"
+echo "File diunduh!"</code></pre>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click event to all accordion headers
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    // Toggle the active class on the content
+                    const content = this.nextElementSibling;
+                    content.classList.toggle('active');
+                    
+                    // Toggle the arrow
+                    const arrow = this.querySelector('.arrow');
+                    arrow.textContent = content.classList.contains('active') ? '▲' : '▼';
+                });
+            });
+            
+            // Activate the first accordion by default (optional)
+            // const firstAccordionContent = document.querySelector('.accordion-content');
+            // if (firstAccordionContent) {
+            //     firstAccordionContent.classList.add('active');
+            //     const firstArrow = document.querySelector('.accordion-header .arrow');
+            //     if (firstArrow) firstArrow.textContent = '▲';
+            // }
+        });
+    </script>
+    
+    <div id="copied-message" class="copied-message">Disalin ke clipboard!</div>
+    
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const message = document.getElementById('copied-message');
+                message.style.display = 'block';
+                setTimeout(() => {
+                    message.style.display = 'none';
+                }, 2000);
+            }).catch(err => {
+                console.error('Gagal menyalin teks: ', err);
+            });
+        }
+    </script>
+</body>
+</html> 

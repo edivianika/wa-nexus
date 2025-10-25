@@ -1,0 +1,247 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 25% 98%;
+    --foreground: 230 25% 25%;
+    --card: 0 0% 100%;
+    --card-foreground: 230 25% 25%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 25% 25%;
+    --primary: 212 90% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 205 70% 75%;
+    --secondary-foreground: 225 25% 25%;
+    --muted: 220 10% 95%;
+    --muted-foreground: 220 10% 50%;
+    --accent: 265 90% 65%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+    --ring: 212 90% 50%;
+    --radius: 0.5rem;
+    --sidebar-background: 220 15% 96%;
+    --sidebar-foreground: 230 25% 25%;
+    --sidebar-primary: 212 90% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 10% 90%;
+    --sidebar-accent-foreground: 230 25% 25%;
+    --sidebar-border: 220 13% 85%;
+    --sidebar-ring: 212 90% 50%;
+  }
+
+  .dark {
+    --background: 225 30% 10%;
+    --foreground: 0 0% 98%;
+    --card: 225 30% 15%;
+    --card-foreground: 0 0% 98%;
+    --popover: 225 30% 15%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 212 90% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 205 70% 40%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 225 30% 20%;
+    --muted-foreground: 220 15% 70%;
+    --accent: 265 90% 65%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 30% 20%;
+    --input: 225 30% 20%;
+    --ring: 212 90% 50%;
+    --sidebar-background: 230 35% 15%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 212 90% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 225 30% 20%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 225 30% 22%;
+    --sidebar-ring: 212 90% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .hero-gradient {
+    @apply bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700;
+  }
+  
+  .glass-panel {
+    @apply bg-background/60 backdrop-blur-lg border border-border/50 rounded-xl shadow-lg;
+  }
+
+  .menu-card {
+    @apply bg-card hover:shadow-md transition-all duration-200 rounded-lg p-4;
+  }
+  
+  .animated-button {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-md transition-all duration-200 transform hover:scale-105;
+  }
+  
+  .dashboard-stat-card {
+    @apply bg-card p-4 flex flex-col space-y-2 border rounded-lg shadow-sm;
+  }
+  
+  .dashboard-stat-value {
+    @apply text-2xl font-bold text-primary;
+  }
+  
+  .dashboard-stat-label {
+    @apply text-sm text-muted-foreground;
+  }
+
+  /* Status badges styled like Novalara UI */
+  .status-badge-active {
+    @apply px-2 py-1 text-xs font-medium rounded-full bg-green-500 text-white;
+  }
+  
+  .status-badge-waiting {
+    @apply px-2 py-1 text-xs font-medium rounded-full bg-amber-500 text-white;
+  }
+
+  .status-badge-open {
+    @apply px-2 py-1 text-xs font-medium rounded-full bg-blue-500 text-white;
+  }
+
+  .status-badge-in-progress {
+    @apply px-2 py-1 text-xs font-medium rounded-full bg-purple-500 text-white;
+  }
+
+  .status-badge-high {
+    @apply px-2 py-1 text-xs font-medium rounded-full bg-red-500 text-white;
+  }
+
+  .status-badge-medium {
+    @apply px-2 py-1 text-xs font-medium rounded-full bg-amber-500 text-white;
+  }
+
+  .status-badge-low {
+    @apply px-2 py-1 text-xs font-medium rounded-full bg-blue-500 text-white;
+  }
+  
+  /* Novalara stat cards */
+  .novalara-stat-card {
+    @apply bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm;
+  }
+  
+  .novalara-stat-label {
+    @apply text-xs uppercase font-medium text-gray-500 dark:text-gray-400 mb-1;
+  }
+  
+  .novalara-stat-value {
+    @apply text-2xl font-bold;
+  }
+  
+  /* Novalara table styles */
+  .novalara-table {
+    @apply w-full border-collapse;
+  }
+  
+  .novalara-table-header {
+    @apply bg-gray-50 dark:bg-gray-800 text-left text-xs uppercase font-medium text-gray-500 dark:text-gray-400 tracking-wider;
+  }
+  
+  .novalara-table-header th {
+    @apply px-4 py-3 border-b border-gray-200 dark:border-gray-700;
+  }
+  
+  .novalara-table-body td {
+    @apply px-4 py-4 border-b border-gray-200 dark:border-gray-700;
+  }
+  
+  .novalara-table-row {
+    @apply hover:bg-gray-50 dark:hover:bg-gray-750;
+  }
+
+  /* Custom scrollbar for sidebar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-sidebar-border/30 rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-sidebar-border/50;
+  }
+  
+  /* For Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+  
+  /* Hide scrollbar when not in use but keep functionality */
+  .custom-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+}
+
+/* Novalara Chart Colors */
+.novalara-chart-blue {
+  color: #3b82f6;
+}
+
+.novalara-chart-light-blue {
+  color: #60a5fa;
+}
+
+.novalara-chart-green {
+  color: #10b981;
+}
+
+.novalara-chart-red {
+  color: #ef4444;
+}
+
+.novalara-chart-amber {
+  color: #f59e0b;
+}
+
+.novalara-chart-purple {
+  color: #8b5cf6;
+}
+
+/* MUI DateTimePicker Fixes */
+.MuiPickersPopper-root {
+  z-index: 9999 !important;
+}
+
+.MuiPaper-root.MuiPopover-paper,
+.MuiPickersPopper-paper,
+.MuiDateTimePickerTabs-root,
+.MuiPickersCalendarHeader-root,
+.MuiDayCalendar-root,
+.MuiPickersDay-root {
+  z-index: 9999 !important;
+}
+
+/* Ensure the calendar items are clickable */
+.MuiPickersDay-root {
+  pointer-events: auto !important;
+}
+
+/* Fix for year and month selection */
+.MuiYearCalendar-root,
+.MuiMonthCalendar-root {
+  z-index: 9999 !important;
+}

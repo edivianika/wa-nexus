@@ -1,0 +1,14 @@
+# Supabase Configuration untuk Client-UI
+VITE_SUPABASE_URL=https://ovscsiulvdgwamhlkwkq.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92c2NzaXVsdmRnd2FtaGxrd2txIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI1NjY4MjEsImV4cCI6MjA1ODE0MjgyMX0.1BpvEPUYrDETlHFomNO8EsZBmoSypu5GEsJwlIfNCxc
+
+# WebSocket Configuration
+VITE_SOCKET_URL=ws://localhost:3000
+
+# API Configuration
+VITE_API_URL=http://localhost:3000/api
+
+# Development Configuration
+VITE_NODE_ENV=development
+
+

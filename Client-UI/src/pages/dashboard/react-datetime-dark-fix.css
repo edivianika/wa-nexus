@@ -1,0 +1,30 @@
+.rdtPicker {
+  background: #18181b !important;
+  color: #fff !important;
+  border: 1px solid #333 !important;
+  box-shadow: 0 4px 24px 0 #000a;
+  z-index: 9999 !important;
+}
+.rdtPicker th, .rdtPicker td, .rdtPicker .rdtTimeToggle, .rdtPicker .rdtSwitch {
+  color: #fff !important;
+}
+.rdtPicker .rdtDay.rdtActive, .rdtPicker .rdtDay:hover {
+  background: #2563eb !important;
+  color: #fff !important;
+}
+.rdtPicker .rdtTimeToggle {
+  background: #222 !important;
+}
+.rdtPicker select {
+  background: #222 !important;
+  color: #fff !important;
+}
+.rdtPicker .rdtBtn {
+  color: #60a5fa !important;
+}
+.rdtPicker .rdtToday {
+  border-bottom: 2px solid #2563eb !important;
+}
+.rdtPicker .rdtPrev, .rdtPicker .rdtNext {
+  color: #60a5fa !important;
+} 

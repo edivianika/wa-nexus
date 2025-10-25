@@ -1,0 +1,48 @@
+# Supabase Configuration
+SUPABASE_URL=https://ovscsiulvdgwamhlkwkq.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92c2NzaXVsdmRnd2FtaGxrd2txIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI1NjY4MjEsImV4cCI6MjA1ODE0MjgyMX0.1BpvEPUYrDETlHFomNO8EsZBmoSypu5GEsJwlIfNCxc
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+
+# Server Configuration
+PORT=3000
+HOST=0.0.0.0
+BASE_URL=http://localhost:3000
+
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+
+# CORS Configuration
+ALLOWED_ORIGINS=http://localhost:8080,http://localhost:3000,http://localhost:5173
+CORS_ORIGIN=http://localhost:5173
+
+# Rate Limiter Configuration
+API_RATE_LIMIT=100
+API_RATE_WINDOW=60000
+RATE_LIMIT_WHITELIST=127.0.0.1,::1
+RATE_LIMIT_MESSAGE=Terlalu banyak permintaan, coba lagi nanti
+RATE_LIMIT_STATUS_CODE=429
+
+# Logging Configuration
+LOG_LEVEL=info
+LOG_VERBOSE=false
+DEBUG_MEDIA_SERVICE=false
+
+# Media Cache Configuration
+MEDIA_CACHE_DIR=./temp/media-cache
+
+# Metrics Configuration
+METRICS_PORT=9090
+
+# BullMQ Configuration
+BULLMQ_REDIS_HOST=localhost
+BULLMQ_REDIS_PORT=6379
+BULLMQ_REDIS_PASSWORD=
+BULLMQ_REDIS_DB=1
+
+# Development Configuration
+NODE_ENV=development
+
+

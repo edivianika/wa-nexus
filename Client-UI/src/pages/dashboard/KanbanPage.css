@@ -1,0 +1,153 @@
+/* Main container styling */
+.kanban-page-container {
+    background-color: transparent;
+    min-height: 100vh;
+}
+
+/* Elegant scrollbar styling for vertical scroll within columns */
+.kanban-column-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.kanban-column-content::-webkit-scrollbar-track {
+    background: transparent; /* Track is invisible */
+}
+
+.kanban-column-content::-webkit-scrollbar-thumb {
+    background-color: rgba(107, 114, 128, 0.3); /* Semi-transparent gray-500 */
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+.kanban-column-content::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(107, 114, 128, 0.5); /* More opaque on hover */
+}
+
+/* Elegant scrollbar styling for horizontal scroll of the board */
+.kanban-board-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.kanban-board-container::-webkit-scrollbar-track {
+    background: transparent; /* Track is invisible */
+}
+
+.kanban-board-container::-webkit-scrollbar-thumb {
+    background-color: rgba(107, 114, 128, 0.3); /* Semi-transparent gray-500 */
+    border-radius: 10px;
+}
+
+.kanban-board-container::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(107, 114, 128, 0.5); /* More opaque on hover */
+}
+
+/* Column Header */
+.kanban-column-header-badge {
+    background-color: #e5e7eb; /* gray-200 */
+    color: #4b5563; /* gray-600 */
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 9999px;
+}
+
+/* Card Styling */
+.kanban-item-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb; /* gray-200 */
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.kanban-item-card:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Avatar Placeholder */
+.avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    font-weight: 500;
+    color: white;
+}
+
+.kanban-board-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.kanban-board-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.kanban-board-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.kanban-board-container::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 20px;
+}
+
+.kanban-column-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  max-height: calc(100vh - 220px);
+}
+
+.kanban-column-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.kanban-column-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.kanban-column-content::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 20px;
+}
+
+/* Add subtle hover effects for cards */
+.kanban-column-content > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+/* Dark mode adjustments */
+.dark .kanban-board-container::-webkit-scrollbar-thumb,
+.dark .kanban-column-content::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+
+/* Add a subtle animation for new cards */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.kanban-column-content > div {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Add a subtle transition for column headers */
+.kanban-column-content h2 {
+  transition: color 0.2s ease;
+}
+
+/* Make board background transparent */
+.kanban-board-container {
+  background: transparent;
+}
+
+.dark .kanban-board-container {
+  background: transparent;
+} 
