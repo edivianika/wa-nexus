@@ -32,14 +32,65 @@ export function SubscriptionStatus() {
   const fetchSubscriptionStatus = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.rpc('get_subscription_status');
       
-      if (error) {
-        throw error;
+      // Get current user first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User tidak ditemukan');
+      }
+      
+      // Use API endpoint instead of RPC
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/billing/subscription`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user.id
+        }
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Gagal mengambil status langganan');
       }
 
-      console.log("Subscription status:", data);
-      setStatus(data);
+      console.log("Subscription status:", result.data);
+      
+      if (result.data) {
+        // Transform API response to match expected format
+        const subscriptionData = {
+          status: result.data.status,
+          plan_name: result.data.plans.name,
+          plan_code: result.data.plans.code,
+          current_period_starts_at: result.data.current_period_starts_at,
+          current_period_ends_at: result.data.current_period_ends_at,
+          subscription_id: result.data.id,
+          limits: result.data.plans.limits,
+          usage: {
+            messages_per_period: 0 // Will be fetched separately if needed
+          }
+        };
+        setStatus(subscriptionData);
+      } else {
+        // No active subscription - set to free tier
+        setStatus({
+          status: 'free',
+          plan_name: 'Free',
+          plan_code: 'free',
+          current_period_starts_at: null,
+          current_period_ends_at: null,
+          subscription_id: null,
+          limits: {
+            messages_per_period: 1000,
+            kanban_boards: -1,
+            drip_campaigns: -1,
+            active_devices: -1
+          },
+          usage: {
+            messages_per_period: 0
+          }
+        });
+      }
     } catch (err: any) {
       console.error('Error fetching subscription status:', err);
       setError(err.message || 'Terjadi kesalahan saat memuat status langganan');
@@ -95,7 +146,7 @@ export function SubscriptionStatus() {
     : 0;
 
   // Secara aman menampilkan tanggal tanpa format()
-  const isActive = status.status === 'premium' || status.status === 'free';
+  const isActive = status.status === 'active' || status.status === 'premium' || status.status === 'free';
   let endDateDisplay = '';
   let daysRemaining = 0;
   

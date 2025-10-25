@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
 
 interface RedeemKuponProps {
   onSuccess?: () => void;
@@ -13,6 +14,17 @@ interface RedeemKuponProps {
 export function RedeemKupon({ onSuccess }: RedeemKuponProps) {
   const [kode, setKode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  // Get current user
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    
+    getUser();
+  }, []);
 
   const handleRedeemKupon = async () => {
     if (!kode.trim()) {
@@ -20,10 +32,21 @@ export function RedeemKupon({ onSuccess }: RedeemKuponProps) {
       return;
     }
 
+    if (!user) {
+      toast.error('Silakan login terlebih dahulu');
+      return;
+    }
+
+    if (!user.email) {
+      toast.error('Email user tidak ditemukan');
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.rpc('redeem_kupon', { 
-        kode_kupon: kode.trim() 
+      const { data, error } = await supabase.rpc('redeem_coupon_new', {
+        kode_kupon: kode.trim(),
+        user_email: user.email
       });
       
       if (error) {
@@ -40,7 +63,33 @@ export function RedeemKupon({ onSuccess }: RedeemKuponProps) {
           onSuccess();
         }
       } else {
-        toast.error(data.message || 'Gagal menggunakan kupon');
+        // Handle different error codes
+        let errorMessage = data.message || 'Gagal menggunakan kupon';
+        
+        switch (data.error_code) {
+          case 'COUPON_ALREADY_USED':
+            errorMessage = 'Kode kupon sudah digunakan';
+            break;
+          case 'COUPON_EXPIRED':
+            errorMessage = 'Kode kupon sudah expired';
+            break;
+          case 'COUPON_NOT_FOUND':
+            errorMessage = 'Kode kupon tidak valid';
+            break;
+          case 'USER_LIMIT_EXCEEDED':
+            errorMessage = 'Anda sudah menggunakan kupon dalam 30 hari terakhir';
+            break;
+          case 'UNAUTHENTICATED':
+            errorMessage = 'Silakan login kembali';
+            break;
+          case 'INVALID_INPUT':
+            errorMessage = 'Kode kupon tidak boleh kosong';
+            break;
+          default:
+            errorMessage = data.message || 'Terjadi kesalahan saat menukarkan kupon';
+        }
+        
+        toast.error(errorMessage);
       }
     } catch (err: any) {
       console.error('Error redeeming coupon:', err);

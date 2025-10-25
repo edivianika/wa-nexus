@@ -27,18 +27,17 @@ const verifyAdmin = async (req, res, next) => {
     const userId = req.user.id; 
 
     try {
-        const { data, error } = await supabaseAdmin
-            .from('user_profiles')
-            .select('is_admin')
-            .eq('id', userId)
-            .single();
+        const { data, error } = await supabaseAdmin.rpc('check_admin_status', {
+            user_id: userId
+        });
 
-        if (error || !data || !data.is_admin) {
+        if (error || !data) {
             return res.status(403).json({ message: 'Forbidden: Admins only' });
         }
 
         next();
     } catch (error) {
+        console.error('Error checking admin status:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
