@@ -293,7 +293,7 @@ const worker = new Worker('broadcast', async job => {
     
     // Jika ada subscription aktif, gunakan rate limit dari plan
     if (subscription?.plans?.limits?.max_speed_msg_per_min) {
-      messagesPerMinute = subscription.plans.limits.max_speed_msg_per_min;
+      messagesPerMinute = subscription.plans_new.limits.max_speed_msg_per_min;
       console.log(`[BroadcastWorker] Using plan rate limit: ${messagesPerMinute} messages/minute for user ${userId}`);
     } else {
       console.log(`[BroadcastWorker] Using default rate limit: ${messagesPerMinute} messages/minute for user ${userId}`);

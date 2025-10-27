@@ -9,6 +9,8 @@ import * as scheduledMessageService from './api/services/scheduledMessageService
 import './jobs/cronJobs.js';
 // Import media cache cleanup job
 import { initializeMediaCleanup } from './jobs/mediaCacheCleanup.js';
+// Import trial expiration job
+import { trialExpirationJob } from './jobs/trialExpirationJob.js';
 import { fork } from 'child_process';
 import path from 'path';
 import fs from 'fs';
@@ -76,6 +78,10 @@ const startServer = async () => {
     // Initialize media cache cleanup job
     initializeMediaCleanup();
     console.log('[Server] Media cache cleanup job initialized');
+    
+    // Start trial expiration job
+    trialExpirationJob.start();
+    console.log('[Server] Trial expiration job started');
   } catch (err) {
     console.error('Error starting server:', err);
     process.exit(1);

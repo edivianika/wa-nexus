@@ -38,7 +38,7 @@ const processJob = async (job) => {
       if (subscription) {
         // User punya subscription aktif, gunakan limit dari paket
         if (subscription.plans?.limits?.max_speed_msg_per_min) {
-          maxSpeed = subscription.plans.limits.max_speed_msg_per_min;
+          maxSpeed = subscription.plans_new.limits.max_speed_msg_per_min;
         }
         // Pastikan tidak ada watermark untuk user berbayar
         needsWatermark = false; 

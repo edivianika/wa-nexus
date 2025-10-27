@@ -13,6 +13,8 @@ import { getBreakerStats, resetBreaker } from '../utils/circuitBreaker.js';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { supabase } from '../utils/supabaseClient.js';
+import billingService from './services/billingService.js';
+import { checkTrialExpired } from '../middleware/checkTrialExpired.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -329,7 +331,7 @@ class ApiServer {
     });
 
     // Endpoint untuk membuat koneksi baru
-    this.app.post('/api/connection/create', async (req, res) => {
+    this.app.post('/api/connection/create', checkTrialExpired, async (req, res) => {
       try {
         const { userId, connectionName, expiredDate } = req.body;
         
@@ -337,6 +339,32 @@ class ApiServer {
           return res.status(400).json({
             success: false,
             error: 'User ID dan Connection Name diperlukan'
+          });
+        }
+
+        // Check device limit based on subscription
+        const subscription = await billingService.getActiveSubscription(userId);
+        const planLimits = subscription?.plans_new?.limits || { active_devices: 1 };
+        const deviceLimit = planLimits.active_devices === -1 ? Infinity : (planLimits.active_devices || 1);
+
+        // Count existing devices for this user
+        const { count, error: countError } = await this.supabase
+          .from('connections')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+
+        if (countError) {
+          loggerUtils.error('Error counting connections:', countError);
+          return res.status(500).json({
+            success: false,
+            error: 'Gagal memverifikasi batas perangkat.'
+          });
+        }
+
+        if (count >= deviceLimit) {
+          return res.status(403).json({
+            success: false,
+            error: `Batas perangkat untuk paket Anda telah tercapai (${count}/${deviceLimit}). Silakan upgrade paket Anda untuk menambah perangkat.`
           });
         }
 

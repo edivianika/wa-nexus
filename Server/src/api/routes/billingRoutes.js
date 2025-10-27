@@ -288,7 +288,7 @@ router.get('/usage/:featureKey', async (req, res) => {
         }
         
         // Dapatkan limit dari plan
-        const limit = subscription.plans.limits?.[featureKey] || 0;
+        const limit = subscription.plans_new.limits?.[featureKey] || 0;
         
         // Dapatkan penggunaan saat ini
         const usage = await billingService.getUsage(userId, featureKey);
@@ -343,6 +343,56 @@ router.post('/cancel', async (req, res) => {
         });
     } catch (error) {
         logger.error(`Error canceling subscription for user: ${req.user.id}`, { error: error.message });
+        res.status(500).json({
+            success: false,
+            error: 'Internal Server Error',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * @route POST /api/billing/assign-trial
+ * @desc Assign trial subscription untuk user baru
+ * @access Private
+ */
+router.post('/assign-trial', async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        const result = await billingService.assignTrialToNewUser(userId);
+        
+        res.json({
+            success: true,
+            message: 'Trial subscription berhasil diberikan',
+            data: result
+        });
+    } catch (error) {
+        logger.error(`Error assigning trial for user: ${req.user.id}`, { error: error.message });
+        res.status(500).json({
+            success: false,
+            error: 'Internal Server Error',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * @route POST /api/billing/handle-trial-expiration
+ * @desc Handle trial expiration (cron job)
+ * @access Private (Admin only)
+ */
+router.post('/handle-trial-expiration', verifyAdmin, async (req, res) => {
+    try {
+        const result = await billingService.handleTrialExpiration();
+        
+        res.json({
+            success: true,
+            message: 'Trial expiration processed',
+            data: result
+        });
+    } catch (error) {
+        logger.error('Error handling trial expiration', { error: error.message });
         res.status(500).json({
             success: false,
             error: 'Internal Server Error',

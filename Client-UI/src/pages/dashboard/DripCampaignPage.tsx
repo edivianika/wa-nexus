@@ -14,6 +14,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ExpiredTrialBanner } from "@/components/subscription/ExpiredTrialBanner";
+import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
 
 // API URL
 const API_URL = import.meta.env.VITE_API_URL ;
@@ -40,6 +42,9 @@ export default function DripCampaignPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [limits, setLimits] = useState<SubscriptionLimits | null>(null);
   const navigate = useNavigate();
+  
+  // Check subscription status
+  const { isExpired } = useSubscriptionStatus();
 
   // Fetch campaigns on component mount
   useEffect(() => {
@@ -153,10 +158,13 @@ export default function DripCampaignPage() {
   };
 
   const campaignLimit = limits?.drip_campaigns;
-  const canCreateCampaign = campaignLimit === -1 || (campaignLimit !== undefined && campaigns.length < campaignLimit);
+  const canCreateCampaign = !isExpired && (campaignLimit === -1 || (campaignLimit !== undefined && campaigns.length < campaignLimit));
 
   return (
     <div className="space-y-6">
+      {/* Expired Trial Banner */}
+      <ExpiredTrialBanner />
+      
       <div className="flex justify-between items-center">
         <div>
         <h1 className="text-2xl font-bold tracking-tight">Drip Campaign</h1>
@@ -176,12 +184,17 @@ export default function DripCampaignPage() {
                   <div className="inline-block">
                     <Button disabled>
                       <PlusCircle className="mr-2 h-4 w-4" />
-                      Buat Campaign Baru
+                      {isExpired ? 'Trial Expired' : 'Buat Campaign Baru'}
                     </Button>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Anda telah mencapai batas {campaignLimit} Drip Campaign untuk paket Anda.</p>
+                  <p>
+                    {isExpired 
+                      ? 'Trial expired - Please upgrade to create campaigns'
+                      : `Anda telah mencapai batas ${campaignLimit} Drip Campaign untuk paket Anda.`
+                    }
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

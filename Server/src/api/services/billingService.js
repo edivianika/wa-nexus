@@ -15,15 +15,15 @@ import { loggerUtils } from '../../utils/logger.js';
 
 class BillingService {
     /**
-     * Mendapatkan semua paket yang aktif
+     * Mendapatkan semua paket yang aktif (4 paket utama)
      */
     async getAllPlans() {
         try {
             const { data, error } = await supabase
-                .from('plans')
+                .from('plans_new')
                 .select('*')
                 .eq('is_active', true)
-                .order('price', { ascending: true });
+                .order('sort_order', { ascending: true });
 
             if (error) throw new Error(error.message);
             return data;
@@ -35,12 +35,12 @@ class BillingService {
 
     /**
      * Mendapatkan paket berdasarkan kode
-     * @param {string} code - Kode paket (micro, lite, starter, growth)
+     * @param {string} code - Kode paket (trial, basic, professional, enterprise)
      */
     async getPlanByCode(code) {
         try {
             const { data, error } = await supabase
-                .from('plans')
+                .from('plans_new')
                 .select('*')
                 .eq('code', code)
                 .eq('is_active', true)
@@ -61,7 +61,7 @@ class BillingService {
     async getPlanById(id) {
         try {
             const { data, error } = await supabase
-                .from('plans')
+                .from('plans_new')
                 .select('*')
                 .eq('id', id)
                 .single();
@@ -82,9 +82,9 @@ class BillingService {
         try {
             const { data, error } = await supabaseAdmin
                 .from('subscriptions')
-                .select('*, plans(*)')
+                .select('*, plans_new(*)')
                 .eq('user_id', userId)
-                .eq('status', 'active')
+                .in('status', ['active', 'trialing', 'expired'])
                 .order('created_at', { ascending: false })
                 .limit(1)
                 .maybeSingle();
@@ -119,7 +119,17 @@ class BillingService {
                     current_period_starts_at: status === 'active' ? new Date() : null,
                     current_period_ends_at: status === 'active' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null // 30 hari
                 }])
-                .select()
+                .select(`
+                    *,
+                    plans_new:plan_id (
+                        id,
+                        name,
+                        code,
+                        price,
+                        limits,
+                        features
+                    )
+                `)
                 .single();
 
             if (error) throw new Error(error.message);
@@ -332,6 +342,39 @@ class BillingService {
     }
 
     /**
+     * Assign trial subscription untuk user baru
+     * @param {string} userId - ID user
+     */
+    async assignTrialToNewUser(userId) {
+        try {
+            const { data, error } = await supabaseAdmin.rpc('assign_trial_to_new_user', {
+                p_user_id: userId
+            });
+
+            if (error) throw new Error(error.message);
+            return data;
+        } catch (error) {
+            loggerUtils.error(`Error assigning trial to user: ${userId}`, { error: error.message });
+            throw error;
+        }
+    }
+
+    /**
+     * Handle trial expiration
+     */
+    async handleTrialExpiration() {
+        try {
+            const { data, error } = await supabaseAdmin.rpc('handle_trial_expiration');
+
+            if (error) throw new Error(error.message);
+            return data;
+        } catch (error) {
+            loggerUtils.error('Error handling trial expiration', { error: error.message });
+            throw error;
+        }
+    }
+
+    /**
      * Menggunakan kredit user untuk berlangganan paket
      * @param {string} userId - ID user
      * @param {string} planCode - Kode paket
@@ -372,10 +415,13 @@ class BillingService {
                 current_period_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 hari
             });
 
+            // Reactivate devices if user had expired trial
+            await this.reactivateDevicesAfterExpiredTrial(userId);
+
             // Dapatkan subscription yang sudah diupdate
             const { data: updatedSubscription, error } = await supabaseAdmin
                 .from('subscriptions')
-                .select('*, plans(*)')
+                .select('*, plans_new(*)')
                 .eq('id', subscription.id)
                 .single();
 
@@ -384,6 +430,37 @@ class BillingService {
             return updatedSubscription;
         } catch (error) {
             loggerUtils.error(`Error subscribing with credit for user: ${userId}, plan: ${planCode}`, { error: error.message });
+            throw error;
+        }
+    }
+
+    /**
+     * Reactivate devices after expired trial
+     * @param {string} userId - ID user
+     */
+    async reactivateDevicesAfterExpiredTrial(userId) {
+        try {
+            // Re-enable all devices that were disabled due to trial expiration
+            const { data, error } = await supabaseAdmin
+                .from('connections')
+                .update({
+                    connected: false, // Keep as disconnected, user needs to reconnect manually
+                    disabled_reason: null,
+                    updated_at: new Date()
+                })
+                .eq('user_id', userId)
+                .eq('disabled_reason', 'trial_expired')
+                .select();
+
+            if (error) {
+                loggerUtils.error(`Error reactivating devices for user: ${userId}`, { error: error.message });
+                return;
+            }
+
+            loggerUtils.info(`Reactivated ${data?.length || 0} devices for user: ${userId}`);
+            return data;
+        } catch (error) {
+            loggerUtils.error(`Error reactivating devices for user: ${userId}`, { error: error.message });
             throw error;
         }
     }

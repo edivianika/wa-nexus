@@ -142,7 +142,7 @@ const addWatermarkIfNeeded = async (req, res, next) => {
         }
 
         // Cek apakah paket memerlukan watermark
-        const needsWatermark = subscription.plans.features?.has_watermark === true;
+        const needsWatermark = subscription.plans_new.features?.has_watermark === true;
         if (needsWatermark && req.body.message) {
             // Tambahkan watermark ke pesan
             req.body.message = `${req.body.message}\n\n---\nSent via WhatsApp Automation Suite`;

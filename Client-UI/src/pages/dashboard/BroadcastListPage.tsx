@@ -36,6 +36,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
+import { ExpiredTrialBanner } from "@/components/subscription/ExpiredTrialBanner";
 import { 
   PlusCircle, 
   Search, 
@@ -83,6 +85,9 @@ const BroadcastListPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
   const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Check subscription status
+  const { isExpired } = useSubscriptionStatus();
 
   useEffect(() => {
     fetchAll();
@@ -292,6 +297,9 @@ const BroadcastListPage = () => {
 
   return (
     <div className="space-y-6">
+      {/* Expired Trial Banner */}
+      <ExpiredTrialBanner />
+      
       <div className="flex justify-between items-center">
         <div>
         <h1 className="text-2xl font-bold tracking-tight">Broadcast Messages</h1>
@@ -304,11 +312,23 @@ const BroadcastListPage = () => {
               Analytics
             </Link>
           </Button>
-          <Button asChild className="animated-button">
-            <Link to="/dashboard/broadcast/create">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create Broadcast
-            </Link>
+          <Button 
+            asChild={!isExpired} 
+            disabled={isExpired}
+            className="animated-button"
+            title={isExpired ? "Trial expired - Please upgrade to create broadcasts" : "Create Broadcast"}
+          >
+            {isExpired ? (
+              <>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Trial Expired
+              </>
+            ) : (
+              <Link to="/dashboard/broadcast/create">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Broadcast
+              </Link>
+            )}
           </Button>
         </div>
       </div>

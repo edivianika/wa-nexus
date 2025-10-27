@@ -19,7 +19,7 @@ export const createConnection = async (req, res) => {
 
     // Check subscription limit
     const subscription = await billingService.getActiveSubscription(userId);
-    const planLimits = subscription?.plans?.limits || { active_devices: 1 }; // Default to 1 if no plan
+    const planLimits = subscription?.plans_new?.limits || { active_devices: 1 }; // Default to 1 if no plan
     const deviceLimit = planLimits.active_devices === -1 ? Infinity : (planLimits.active_devices || 1);
 
     const { count, error: countError } = await supabase

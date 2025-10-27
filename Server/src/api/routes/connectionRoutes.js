@@ -18,6 +18,7 @@ import {
 } from '../../utils/validationSchemas.js';
 import { refreshTriggersCache } from '../controllers/triggerController.js';
 import { loggerUtils } from '../../utils/logger.js';
+import { checkTrialExpired } from '../../middleware/checkTrialExpired.js';
 
 // Middleware to extract user_id from a custom header
 const extractUserId = (req, res, next) => {
@@ -34,7 +35,7 @@ const extractUserId = (req, res, next) => {
 };
 
 // Create connection
-router.post('/create', validate(createConnectionSchema), connectionController.createConnection);
+router.post('/create', checkTrialExpired, validate(createConnectionSchema), connectionController.createConnection);
 
 // Get connections - using extractUserId only (no API key required)
 router.get('/', extractUserId, connectionController.getAllConnections);

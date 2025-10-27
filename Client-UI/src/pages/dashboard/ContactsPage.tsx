@@ -121,14 +121,7 @@ const ContactsPage = () => {
   const [connections, setConnections] = useState<{ id: string; name: string }[]>([]);
   const [connectionMap, setConnectionMap] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    fetchContacts();
-    (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      setOwnerId(userData?.user?.id || "");
-    })();
-    // eslint-disable-next-line
-  }, [currentPage, searchTerm]);
+  // Removed duplicate useEffect - fetchContacts is handled in the useEffect below
 
   useEffect(() => {
     if (headerCheckboxRef.current) {
@@ -263,12 +256,14 @@ const ContactsPage = () => {
       setLoading(false);
       setSearchLoading(false);
     }
-  }, [userId, currentPage, pageSize, searchTerm, contacts.length, lastFetchTime, CACHE_DURATION, lastFetchedPage]);
+  }, [userId, currentPage, pageSize, searchTerm, lastFetchTime, CACHE_DURATION, lastFetchedPage]);
 
   // Update dependency array to include userId
   useEffect(() => {
-    fetchContacts();
-  }, [fetchContacts, userId, currentPage, searchTerm]);
+    if (userId) {
+      fetchContacts();
+    }
+  }, [userId, currentPage, searchTerm]);
 
   // Ensure search triggers fetchContacts and resets page
   useEffect(() => {

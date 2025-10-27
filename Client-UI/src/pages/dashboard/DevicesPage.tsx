@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { DeviceCard } from "@/components/devices/device-card";
 import { AddDeviceForm } from "@/components/devices/add-device-form";
+import { TrialNotification } from "@/components/subscription/TrialNotification";
+import { ExpiredTrialBanner } from "@/components/subscription/ExpiredTrialBanner";
 import { Smartphone, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 import { generateDeviceId, generateApiKey } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 // Baca URL server dari environment variable, jangan hardcode
@@ -131,14 +133,19 @@ const DevicesPage = () => {
         
         // Dapatkan informasi subscription dan devices secara paralel
         const [subscriptionResult, connectionsResult] = await Promise.all([
-          supabase.rpc('get_subscription_status', {}),
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/billing/subscription`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-id': user.id
+            }
+          }).then(res => res.json()),
           supabase.from('connections')
             .select('*')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false })
         ]);
         
-        const { data: subscriptionData, error: subscriptionError } = subscriptionResult;
         const { data: connections, error } = connectionsResult;
           
         if (error) throw error;
@@ -146,13 +153,16 @@ const DevicesPage = () => {
         if (!isMounted) return;
         
         // Set batas device dari informasi subscription
-        if (subscriptionError) {
-          console.error("Error fetching subscription:", subscriptionError);
-        } else if (subscriptionData) {
-          console.log("Subscription data received:", subscriptionData);
-          const deviceLimitValue = subscriptionData.limits?.active_devices || 1;
+        if (subscriptionResult.success && subscriptionResult.data) {
+          console.log("Subscription data received:", subscriptionResult.data);
+          const deviceLimitValue = subscriptionResult.data.plans_new?.limits?.active_devices || 1;
           console.log("Device limit value:", deviceLimitValue);
+          console.log("Setting device limit to:", deviceLimitValue === -1 ? Infinity : deviceLimitValue);
           setDeviceLimit(deviceLimitValue === -1 ? Infinity : deviceLimitValue);
+        } else {
+          console.error("Error fetching subscription:", subscriptionResult);
+          // Fallback to default limit
+          setDeviceLimit(1);
         }
         
         // Ambil semua ID agen yang digunakan oleh device
@@ -414,25 +424,21 @@ const DevicesPage = () => {
 
   return (
     <div className="space-y-6">
+      {/* Expired Trial Banner */}
+      <ExpiredTrialBanner />
+      
+      {/* Trial Notification */}
+      <TrialNotification />
+      
+      
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Devices</h1>
         
-        {devices.length < deviceLimit ? (
-          <AddDeviceForm onAddDevice={handleAddDevice} />
-        ) : (
-          <div className="flex items-center">
-            <p className="text-sm text-amber-600 mr-2">
-              Anda telah mencapai batas {deviceLimit} device
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/dashboard/subscription")}
-            >
-              Upgrade
-            </Button>
-          </div>
-        )}
+        <AddDeviceForm 
+          onAddDevice={handleAddDevice}
+          currentDeviceCount={devices.length}
+          deviceLimit={deviceLimit}
+        />
       </div>
       
       <div>

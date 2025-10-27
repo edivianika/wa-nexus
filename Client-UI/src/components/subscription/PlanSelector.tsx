@@ -122,7 +122,17 @@ export function PlanSelector({ onSubscribe }: PlanSelectorProps) {
       const creditData = await creditResponse.json();
       
       if (plansData.success) {
-        const grouped = groupAndSortPlans(plansData.data);
+        // Filter untuk 4 paket utama saja (trial, basic, professional, enterprise)
+        const mainPlans = plansData.data.filter((plan: Plan) => 
+          ['trial', 'basic', 'professional', 'enterprise'].includes(plan.code)
+        );
+        
+        // Group plans dengan logic yang lebih sederhana untuk 4 paket
+        const grouped = mainPlans.map(plan => ({
+          baseName: plan.name,
+          plans: [plan]
+        }));
+        
         setPlans(grouped);
       } else {
         throw new Error(plansData.message || "Gagal mengambil data paket");
@@ -280,70 +290,141 @@ interface PlanCardProps {
 }
 
 function PlanCard({ group, onSelectPlan, creditBalance, isSubscribing }: PlanCardProps) {
-  const [selectedPlanId, setSelectedPlanId] = useState(group.plans[0].id);
+  const selectedPlan = group.plans[0]; // Hanya 1 plan per group untuk 4 paket utama
 
-  const selectedPlan = group.plans.find(p => p.id === selectedPlanId) || group.plans[0];
+  const getPlanBadge = (code: string) => {
+    switch (code) {
+      case 'trial': return { text: 'TRIAL', className: 'bg-blue-100 text-blue-800' };
+      case 'basic': return { text: 'POPULAR', className: 'bg-green-100 text-green-800' };
+      case 'professional': return { text: 'RECOMMENDED', className: 'bg-purple-100 text-purple-800' };
+      case 'enterprise': return { text: 'ENTERPRISE', className: 'bg-orange-100 text-orange-800' };
+      default: return null;
+    }
+  };
 
-  const getDurationLabel = (code: string) => {
-    if (code.endsWith('6m')) return '6 Bulan (Diskon 10%)';
-    if (code.endsWith('1y')) return '1 Tahun (Diskon 20%)';
-    return '1 Bulan';
-  }
+  const getPlanDescription = (code: string) => {
+    switch (code) {
+      case 'trial': return 'Coba gratis 7 hari dengan fitur lengkap';
+      case 'basic': return 'Sempurna untuk individu dan startup kecil';
+      case 'professional': return 'Ideal untuk bisnis menengah dan agensi';
+      case 'enterprise': return 'Solusi lengkap untuk perusahaan besar';
+      default: return '';
+    }
+  };
+
+  const badge = getPlanBadge(selectedPlan.code);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{group.baseName}</CardTitle>
-        <CardDescription>
-          <span className="text-2xl font-bold">{formatCurrency(selectedPlan.price)}</span>
-          <span className="text-sm text-muted-foreground"> / {getDurationLabel(selectedPlan.code).split(' ')[0]}</span>
+    <Card className={`relative ${selectedPlan.code === 'professional' ? 'border-purple-200 shadow-lg' : ''}`}>
+      {badge && (
+        <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold ${badge.className}`}>
+          {badge.text}
+        </div>
+      )}
+      
+      <CardHeader className="text-center">
+        <CardTitle className="text-xl">{selectedPlan.name}</CardTitle>
+        <CardDescription className="text-sm text-muted-foreground">
+          {getPlanDescription(selectedPlan.code)}
         </CardDescription>
+        <div className="mt-4">
+          <span className="text-3xl font-bold">
+            {selectedPlan.price === 0 ? 'GRATIS' : formatCurrency(selectedPlan.price)}
+          </span>
+          {selectedPlan.price > 0 && (
+            <span className="text-sm text-muted-foreground"> / bulan</span>
+          )}
+        </div>
       </CardHeader>
+      
       <CardContent>
-        <RadioGroup
-          value={selectedPlanId}
-          onValueChange={setSelectedPlanId}
-          className="mb-4"
-        >
-          {group.plans.map(plan => (
-            <div key={plan.id} className="flex items-center space-x-2">
-              <RadioGroupItem value={plan.id} id={plan.id} />
-              <Label htmlFor={plan.id}>{getDurationLabel(plan.code)} - <span className="font-semibold">{formatCurrency(plan.price)}</span></Label>
-            </div>
-          ))}
-        </RadioGroup>
-        
-        <div className="space-y-2 mt-4 pt-4 border-t">
-          {selectedPlan.limits && Object.entries(selectedPlan.limits).map(([key, value]) => (
-            <div key={key} className="flex items-center">
+        <div className="space-y-3">
+          {/* Limits */}
+          <div className="space-y-2">
+            <div className="flex items-center">
               <Check className="h-4 w-4 mr-2 text-green-500" />
-              <span>
-                {value === -1 ? 'Unlimited' : value} {key.replace(/_/g, ' ')}
+              <span className="text-sm">
+                {selectedPlan.limits.messages_per_period === -1 ? 'Unlimited' : selectedPlan.limits.messages_per_period.toLocaleString()} pesan per bulan
               </span>
             </div>
-          ))}
-          {selectedPlan.features && Object.entries(selectedPlan.features).map(([key, value]) => (
-            <div key={key} className="flex items-center">
-              {value ? (
+            <div className="flex items-center">
+              <Check className="h-4 w-4 mr-2 text-green-500" />
+              <span className="text-sm">
+                {selectedPlan.limits.active_devices === -1 ? 'Unlimited' : selectedPlan.limits.active_devices} device WhatsApp
+              </span>
+            </div>
+            <div className="flex items-center">
+              <Check className="h-4 w-4 mr-2 text-green-500" />
+              <span className="text-sm">
+                {selectedPlan.limits.drip_campaigns === -1 ? 'Unlimited' : selectedPlan.limits.drip_campaigns} drip campaign
+              </span>
+            </div>
+            <div className="flex items-center">
+              <Check className="h-4 w-4 mr-2 text-green-500" />
+              <span className="text-sm">
+                {selectedPlan.limits.kanban_boards === -1 ? 'Unlimited' : selectedPlan.limits.kanban_boards} kanban board
+              </span>
+            </div>
+          </div>
+
+          {/* Features */}
+          <div className="pt-4 border-t space-y-2">
+            {selectedPlan.features.has_ai_typing && (
+              <div className="flex items-center">
                 <Check className="h-4 w-4 mr-2 text-green-500" />
-              ) : (
+                <span className="text-sm">AI Typing Indicator</span>
+              </div>
+            )}
+            {selectedPlan.features.has_scheduled_campaigns && (
+              <div className="flex items-center">
+                <Check className="h-4 w-4 mr-2 text-green-500" />
+                <span className="text-sm">Scheduled Campaigns</span>
+              </div>
+            )}
+            {selectedPlan.features.team_members > 0 && (
+              <div className="flex items-center">
+                <Check className="h-4 w-4 mr-2 text-green-500" />
+                <span className="text-sm">{selectedPlan.features.team_members} team members</span>
+              </div>
+            )}
+            {selectedPlan.features.priority_support && (
+              <div className="flex items-center">
+                <Check className="h-4 w-4 mr-2 text-green-500" />
+                <span className="text-sm">Priority Support</span>
+              </div>
+            )}
+            {selectedPlan.features.dedicated_manager && (
+              <div className="flex items-center">
+                <Check className="h-4 w-4 mr-2 text-green-500" />
+                <span className="text-sm">Dedicated Manager</span>
+              </div>
+            )}
+            {selectedPlan.features.has_watermark && (
+              <div className="flex items-center">
                 <X className="h-4 w-4 mr-2 text-red-500" />
-              )}
-              <span className={!value ? 'text-muted-foreground line-through' : ''}>
-                {key.replace(/has_/g, '').replace(/_/g, ' ')}
-              </span>
-            </div>
-          ))}
+                <span className="text-sm text-muted-foreground">Watermark</span>
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
+      
       <CardFooter>
         <Button 
-          className="w-full" 
-          onClick={() => onSelectPlan(selectedPlan)}
-          variant={selectedPlan.price > creditBalance ? "outline" : "default"}
-          disabled={isSubscribing}
+          onClick={() => onSelectPlan(selectedPlan)} 
+          className={`w-full ${selectedPlan.code === 'professional' ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+          disabled={isSubscribing || (selectedPlan.price > 0 && creditBalance < selectedPlan.price)}
         >
-          {selectedPlan.price > creditBalance ? 'Kredit Tidak Cukup' : 'Pilih Paket'}
+          {isSubscribing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Memproses...
+            </>
+          ) : selectedPlan.price === 0 ? (
+            'Mulai Trial Gratis'
+          ) : (
+            `Berlangganan ${formatCurrency(selectedPlan.price)}`
+          )}
         </Button>
       </CardFooter>
     </Card>

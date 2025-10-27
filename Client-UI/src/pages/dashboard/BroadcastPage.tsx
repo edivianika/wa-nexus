@@ -25,6 +25,8 @@ import { useDropzone } from 'react-dropzone';
 import { AssetPicker } from "@/components/asset/AssetPicker";
 import { Asset } from "@/services/assetService";
 import assetService from "@/services/assetService";
+import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
+import { SimpleExpiredBanner } from "@/components/subscription/SimpleExpiredBanner";
 
 // Baca URL API dari environment variable
 const BROADCAST_API_URL = import.meta.env.VITE_BROADCAST_API_URL || 'http://localhost:3004';
@@ -144,6 +146,9 @@ const BroadcastPage = () => {
 
     fetchUserData();
   }, []);
+
+  // Check subscription status
+  const { isExpired } = useSubscriptionStatus();
 
   // New useEffect to load selected contacts from contacts page
   useEffect(() => {
@@ -580,17 +585,25 @@ const BroadcastPage = () => {
   };
 
   return (
-    <form onSubmit={handleOpenConfirmDialog} className="space-y-6">
-      <div className="flex justify-between items-start">
+    <div className="space-y-6">
+      {/* Expired Trial Banner */}
+      <SimpleExpiredBanner />
+      
+      <form onSubmit={handleOpenConfirmDialog} className="space-y-6">
+        <div className="flex justify-between items-start">
         <div>
             <h1 className="text-2xl font-bold tracking-tight">Create Broadcast</h1>
             <p className="text-sm text-muted-foreground">
                 Configure, compose, and send your message to multiple contacts at once.
             </p>
         </div>
-        <Button type="submit" disabled={isLoading}>
+        <Button 
+          type="submit" 
+          disabled={isLoading || isExpired}
+          title={isExpired ? "Trial expired - Please upgrade to create broadcasts" : "Schedule/Send Broadcast"}
+        >
           <SendIcon className="mr-2 h-4 w-4" />
-          {isLoading ? "Scheduling..." : "Schedule/Send Broadcast"}
+          {isExpired ? "Trial Expired" : (isLoading ? "Scheduling..." : "Schedule/Send Broadcast")}
         </Button>
       </div>
 
@@ -1026,7 +1039,8 @@ const BroadcastPage = () => {
           background: rgba(255, 255, 255, 0.3);
         }
       `}} />
-    </form>
+      </form>
+    </div>
   );
 };
 

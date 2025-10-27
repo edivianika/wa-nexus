@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import io from "socket.io-client";
+import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
 
 // Import WhatsApp icon component
 const WhatsAppIcon = ({ className = "h-3.5 w-3.5" }: { className?: string }) => (
@@ -102,6 +103,9 @@ export function DeviceCard({
   const [connectionStatus, setConnectionStatus] = useState(status);
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
   const [socketDisconnected, setSocketDisconnected] = useState(false);
+
+  // Check subscription status
+  const { isExpired } = useSubscriptionStatus();
 
   // Always use the dynamic WebSocket URL
   const socketUrl = SOCKET_URL;
@@ -441,8 +445,9 @@ export function DeviceCard({
                 variant="outline"
                 size="sm"
                 onClick={handleReconnect}
-                disabled={isLoading}
+                disabled={isLoading || isExpired}
                 className="h-8 px-3 hover:bg-green-50 hover:text-green-600 hover:border-green-200 dark:hover:bg-green-900/20 dark:hover:text-green-400 dark:hover:border-green-800/40"
+                title={isExpired ? "Trial expired - Please upgrade to connect" : "Connect"}
               >
                 <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
                 Scan QR
@@ -454,8 +459,8 @@ export function DeviceCard({
                 size="sm"
                 className="h-8 px-2 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-100/20"
                 onClick={handleDisconnect}
-                disabled={isLoading}
-                title="Disconnect"
+                disabled={isLoading || isExpired}
+                title={isExpired ? "Trial expired - Please upgrade" : "Disconnect"}
               >
                 <PowerOff className="h-3.5 w-3.5" />
               </Button>
@@ -719,7 +724,8 @@ export function DeviceCard({
             </Button>
             <Button
               onClick={handleReconnect}
-              disabled={isLoading}
+              disabled={isLoading || isExpired}
+              title={isExpired ? "Trial expired - Please upgrade" : "Refresh QR"}
             >
               Segarkan QR
             </Button>
