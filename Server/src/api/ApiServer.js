@@ -33,6 +33,7 @@ import kanbanRoutes from './routes/kanbanRoutes.js';
 import assetRoutes from './routes/assetRoutes.js';
 import billingRoutes from './routes/billingRoutes.js';
 import mediaRoutes from './routes/mediaRoutes.js';
+import docsRoutes from './routes/docsRoutes.js';
 
 /**
  * Class untuk menangani server dan endpoint API
@@ -239,6 +240,12 @@ class ApiServer {
     this.app.use('/api/assets', assetRoutes);
     this.app.use('/api/billing', billingRoutes);
     this.app.use('/api', mediaRoutes);
+    this.app.use('/api/docs', docsRoutes);
+
+    // Route khusus untuk dokumentasi n8n
+    this.app.get('/docn8n', (req, res) => {
+      res.redirect('/api/docs/n8n');
+    });
 
     // Endpoint untuk meminta QR code
     this.app.post('/api/qr/request', this.authMiddleware, async (req, res) => {
@@ -246,13 +253,31 @@ class ApiServer {
         const connectionId = req.connection.id;
         loggerUtils.info('QR code request received', { connectionId });
 
-        // Cek status koneksi saat ini
-        if (req.connection.connected === true) {
-          loggerUtils.warn('Connection already active', { connectionId });
-          return res.status(400).json({
-            success: false,
-            error: 'Koneksi sudah aktif'
-          });
+        // Cek apakah koneksi sudah ada di memory
+        let connection = this.connectionManager.getConnection(connectionId);
+        
+        // Jika koneksi sudah connected, disconnect dulu untuk force reconnect
+        if (connection && connection.connected === true) {
+          loggerUtils.info('Disconnecting existing connection to generate new QR', { connectionId });
+          try {
+            await this.connectionManager.disconnect(connectionId);
+            // Tunggu sebentar untuk memastikan disconnect selesai
+            await delay(1000);
+          } catch (disconnectError) {
+            loggerUtils.warn('Error during disconnect, continuing anyway', { connectionId, error: disconnectError.message });
+          }
+        }
+        
+        // Hapus session dari Redis untuk memastikan QR code baru dihasilkan
+        try {
+          const { client, keys, del } = await import('../utils/redis.js');
+          const sessionKeys = await keys(`session:${connectionId}:*`);
+          if (sessionKeys && sessionKeys.length > 0) {
+            await Promise.all(sessionKeys.map(key => del(key)));
+            loggerUtils.info('Session keys deleted from Redis', { connectionId, count: sessionKeys.length });
+          }
+        } catch (redisError) {
+          loggerUtils.warn('Error deleting session from Redis, continuing anyway', { connectionId, error: redisError.message });
         }
         
         // Connect ke WhatsApp untuk mendapatkan QR code
@@ -260,10 +285,10 @@ class ApiServer {
         
         // Tunggu hingga QR code tersedia
         let attempts = 0;
-        const maxAttempts = 20;
+        const maxAttempts = 30; // Increase timeout to 15 seconds
         
         while (attempts < maxAttempts) {
-          const connection = this.connectionManager.getConnection(connectionId);
+          connection = this.connectionManager.getConnection(connectionId);
           if (connection && connection.qrCode) {
             loggerUtils.info('QR code generated', { connectionId });
             return res.json({
@@ -278,7 +303,7 @@ class ApiServer {
         loggerUtils.error('QR code timeout', { connectionId });
         return res.status(408).json({
           success: false,
-          error: 'Timeout menunggu QR code'
+          error: 'Timeout menunggu QR code. Silakan coba lagi.'
         });
       } catch (error) {
         errorHandler(error, { 
@@ -288,7 +313,7 @@ class ApiServer {
         });
         res.status(500).json({
           success: false,
-          error: 'Terjadi kesalahan saat meminta QR code'
+          error: 'Terjadi kesalahan saat meminta QR code: ' + (error.message || 'Unknown error')
         });
       }
     });

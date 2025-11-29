@@ -135,6 +135,7 @@ const ContactsPage = () => {
       const { data: userData } = await supabase.auth.getUser();
       const id = userData?.user?.id || "";
       setUserId(id);
+      setOwnerId(id); // Set ownerId untuk ScheduledMessageDialog
       localStorage.setItem('user_id', id);
     };
     getUserId();

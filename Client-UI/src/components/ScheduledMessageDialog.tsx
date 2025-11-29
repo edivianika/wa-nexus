@@ -50,6 +50,7 @@ interface Connection {
   id: string;
   name: string;
   phone_number?: string;
+  connected?: boolean;
 }
 
 interface Props {
@@ -97,7 +98,7 @@ const ScheduledMessageDialog: React.FC<Props> = ({
       fetchConnections();
       fetchContactInfo();
     }
-  }, [open, contactId]);
+  }, [open, contactId, ownerId]);
 
   // Fetch contact info
   const fetchContactInfo = async () => {
@@ -158,8 +159,7 @@ const ScheduledMessageDialog: React.FC<Props> = ({
     try {
       const { data, error } = await supabase
         .from('connections')
-        .select('id, name, phone_number')
-        .eq('connected', true)
+        .select('id, name, phone_number, connected')
         .eq('user_id', ownerId);
       
       if (error) throw error;
@@ -534,7 +534,17 @@ const ScheduledMessageDialog: React.FC<Props> = ({
                   <SelectContent>
                     {connections.map((connection) => (
                       <SelectItem key={connection.id} value={connection.id}>
-                        {connection.name} {connection.phone_number ? `(${connection.phone_number})` : ''}
+                        <div className="flex items-center gap-2">
+                          <span>{connection.name}</span>
+                          {connection.phone_number && <span className="text-muted-foreground">({connection.phone_number})</span>}
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            connection.connected 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          }`}>
+                            {connection.connected ? 'Connected' : 'Disconnected'}
+                          </span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>

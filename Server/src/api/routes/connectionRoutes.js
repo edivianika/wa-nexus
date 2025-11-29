@@ -49,6 +49,9 @@ router.post('/:connectionId/disconnect', authenticateApiKey, validate(disconnect
 // Refresh connection
 router.post('/:connectionId/refresh', authenticateApiKey, validate(connectionIdParamSchema), refreshConnection);
 
+// Refresh connection using header (for backward compatibility)
+router.post('/refresh', authenticateApiKey, refreshConnection);
+
 // Get connection status
 router.get('/:connectionId/status', authenticateApiKey, validate(connectionIdParamSchema), async (req, res) => {
   try {
