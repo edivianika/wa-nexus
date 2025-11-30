@@ -14,7 +14,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ExpiredTrialBanner } from "@/components/subscription/ExpiredTrialBanner";
+import { SubscriptionBanner } from "@/components/subscription/SubscriptionBanner";
 import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
 
 // API URL
@@ -163,7 +163,7 @@ export default function DripCampaignPage() {
   return (
     <div className="space-y-6">
       {/* Expired Trial Banner */}
-      <ExpiredTrialBanner />
+      <SubscriptionBanner />
       
       <div className="flex justify-between items-center">
         <div>

@@ -38,7 +38,7 @@ const DocumentationPage = () => {
           </div>
         </div>
       </div>
-      
+
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -47,19 +47,19 @@ const DocumentationPage = () => {
           <TabsTrigger value="receiving">Receiving Messages</TabsTrigger>
           <TabsTrigger value="media">Media Handling</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="overview" className="space-y-4">
           <div className="prose max-w-none">
             <h2>Getting Started with WA Nexus API</h2>
             <p>
               The WA Nexus API allows you to integrate WhatsApp messaging into your applications. This documentation provides detailed information about the API endpoints, request/response formats, and examples.
             </p>
-            
+
             <h3>Base URL</h3>
             <div className="bg-muted p-3 rounded-md font-mono text-sm">
               https://api.wa-nexus.com/v1
             </div>
-            
+
             <h3>API Features</h3>
             <ul>
               <li>Send text messages, media files, and documents</li>
@@ -68,7 +68,7 @@ const DocumentationPage = () => {
               <li>Track message delivery status</li>
               <li>Manage multiple WhatsApp devices/numbers</li>
             </ul>
-            
+
             <h3>Requirements</h3>
             <p>
               To use the WA Nexus API, you need:
@@ -80,25 +80,25 @@ const DocumentationPage = () => {
             </ul>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="authentication" className="space-y-4">
           <div className="prose max-w-none">
             <h2>Authentication</h2>
             <p>
               All API requests must include your API key in the Authorization header using Bearer token authentication.
             </p>
-            
+
             <h3>Headers</h3>
             <div className="bg-muted p-3 rounded-md font-mono text-sm">
               Authorization: Bearer YOUR_API_KEY<br />
               Content-Type: application/json
             </div>
-            
+
             <h3>Example Request</h3>
-            
+
             <div className="relative">
               <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-auto">
-{`curl -X GET https://api.wa-nexus.com/v1/devices \\
+                {`curl -X GET https://api.wa-nexus.com/v1/devices \\
   -H "Authorization: Bearer wha_1234567890abcdefghijk" \\
   -H "Content-Type: application/json"`}
               </pre>
@@ -110,35 +110,35 @@ const DocumentationPage = () => {
   -H "Authorization: Bearer wha_1234567890abcdefghijk" \\
   -H "Content-Type: application/json"`, 1)}
               >
-                {copiedIndex === 1 ? 
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : 
+                {copiedIndex === 1 ?
+                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> :
                   <ClipboardCheck className="h-3.5 w-3.5" />
                 }
               </Button>
             </div>
-            
+
             <h3>API Key Security</h3>
             <p>
               Keep your API key secure and never expose it in client-side code or public repositories. You can generate, revoke, and manage API keys from the Devices page in your dashboard.
             </p>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="sending" className="space-y-4">
           <div className="prose max-w-none">
             <h2>Sending Messages</h2>
             <p>
               Send text messages, media, or documents to any WhatsApp number using the API.
             </p>
-            
+
             <h3>Send Text Message</h3>
             <p>
               <strong>Endpoint:</strong> POST /messages
             </p>
-            
+
             <div className="relative">
               <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-auto">
-{`// Request
+                {`// Request
 {
   "device_id": "dev_abc123",
   "to": "+1234567890",
@@ -161,19 +161,19 @@ const DocumentationPage = () => {
   }
 }`, 2)}
               >
-                {copiedIndex === 2 ? 
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : 
+                {copiedIndex === 2 ?
+                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> :
                   <ClipboardCheck className="h-3.5 w-3.5" />
                 }
               </Button>
             </div>
-            
+
             <h3>Code Examples</h3>
-            
+
             <h4>JavaScript (Node.js)</h4>
             <div className="relative">
               <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-auto">
-{`const axios = require('axios');
+                {`const axios = require('axios');
 
 async function sendWhatsAppMessage() {
   try {
@@ -233,17 +233,17 @@ async function sendWhatsAppMessage() {
 
 sendWhatsAppMessage();`, 3)}
               >
-                {copiedIndex === 3 ? 
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : 
+                {copiedIndex === 3 ?
+                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> :
                   <ClipboardCheck className="h-3.5 w-3.5" />
                 }
               </Button>
             </div>
-            
+
             <h4>Python</h4>
             <div className="relative">
               <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-auto">
-{`import requests
+                {`import requests
 import json
 
 def send_whatsapp_message():
@@ -309,22 +309,22 @@ def send_whatsapp_message():
 
 send_whatsapp_message()`, 4)}
               >
-                {copiedIndex === 4 ? 
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : 
+                {copiedIndex === 4 ?
+                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> :
                   <ClipboardCheck className="h-3.5 w-3.5" />
                 }
               </Button>
             </div>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="receiving" className="space-y-4">
           <div className="prose max-w-none">
             <h2>Receiving Messages</h2>
             <p>
               To receive incoming messages from WhatsApp, you need to set up a webhook endpoint that WA Nexus can send notifications to.
             </p>
-            
+
             <h3>Setting Up Webhooks</h3>
             <p>
               Configure your webhook URL in the device settings page. Your webhook server should:
@@ -334,11 +334,11 @@ send_whatsapp_message()`, 4)}
               <li>Return a 200 OK response</li>
               <li>Process the webhook payload</li>
             </ul>
-            
+
             <h3>Sample Webhook Payload</h3>
             <div className="relative">
               <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-auto">
-{`{
+                {`{
   "event": "message_received",
   "device_id": "dev_abc123",
   "message": {
@@ -370,17 +370,17 @@ send_whatsapp_message()`, 4)}
   }
 }`, 5)}
               >
-                {copiedIndex === 5 ? 
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : 
+                {copiedIndex === 5 ?
+                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> :
                   <ClipboardCheck className="h-3.5 w-3.5" />
                 }
               </Button>
             </div>
-            
+
             <h3>Handling Webhooks (Node.js Example)</h3>
             <div className="relative">
               <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-auto">
-{`const express = require('express');
+                {`const express = require('express');
 const app = express();
 app.use(express.json());
 
@@ -464,31 +464,31 @@ app.listen(PORT, () => {
   console.log(\`Webhook server listening on port \${PORT}\`);
 });`, 6)}
               >
-                {copiedIndex === 6 ? 
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : 
+                {copiedIndex === 6 ?
+                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> :
                   <ClipboardCheck className="h-3.5 w-3.5" />
                 }
               </Button>
             </div>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="media" className="space-y-4">
           <div className="prose max-w-none">
             <h2>Media Handling</h2>
             <p>
               Send and receive images, audio, video, and documents through the WhatsApp API.
             </p>
-            
+
             <h3>Sending Media Messages</h3>
             <p>
               <strong>Endpoint:</strong> POST /messages
             </p>
-            
+
             <h4>Sending an Image</h4>
             <div className="relative">
               <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-auto">
-{`{
+                {`{
   "device_id": "dev_abc123",
   "to": "+1234567890",
   "type": "image",
@@ -512,17 +512,17 @@ app.listen(PORT, () => {
   }
 }`, 7)}
               >
-                {copiedIndex === 7 ? 
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : 
+                {copiedIndex === 7 ?
+                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> :
                   <ClipboardCheck className="h-3.5 w-3.5" />
                 }
               </Button>
             </div>
-            
+
             <h4>Sending a Document</h4>
             <div className="relative">
               <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-auto">
-{`{
+                {`{
   "device_id": "dev_abc123",
   "to": "+1234567890",
   "type": "document",
@@ -546,13 +546,13 @@ app.listen(PORT, () => {
   }
 }`, 8)}
               >
-                {copiedIndex === 8 ? 
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : 
+                {copiedIndex === 8 ?
+                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> :
                   <ClipboardCheck className="h-3.5 w-3.5" />
                 }
               </Button>
             </div>
-            
+
             <h3>Supported Media Types</h3>
             <ul>
               <li><strong>Images:</strong> JPG, PNG, WebP (max 5MB)</li>
@@ -560,19 +560,19 @@ app.listen(PORT, () => {
               <li><strong>Video:</strong> MP4, 3GP, MOV (max 16MB)</li>
               <li><strong>Documents:</strong> PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT (max 100MB)</li>
             </ul>
-            
+
             <h3>Media Upload API</h3>
             <p>
               For larger files or to store media for reuse, you can first upload the media to our servers:
             </p>
-            
+
             <p>
               <strong>Endpoint:</strong> POST /media
             </p>
-            
+
             <div className="relative">
               <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-auto">
-{`// This is a multipart/form-data request
+                {`// This is a multipart/form-data request
 // Form fields:
 // - file: The media file to upload
 // - type: The media type (image, audio, video, document)
@@ -604,13 +604,13 @@ app.listen(PORT, () => {
   "url": "https://api.wa-nexus.com/v1/media/med_12345"
 }`, 9)}
               >
-                {copiedIndex === 9 ? 
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : 
+                {copiedIndex === 9 ?
+                  <CheckCircle className="h-3.5 w-3.5 text-green-500" /> :
                   <ClipboardCheck className="h-3.5 w-3.5" />
                 }
               </Button>
             </div>
-            
+
             <p>
               After uploading, you can use the returned <code>url</code> in your message requests.
             </p>

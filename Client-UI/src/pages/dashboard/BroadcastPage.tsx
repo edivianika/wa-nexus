@@ -26,7 +26,7 @@ import { AssetPicker } from "@/components/asset/AssetPicker";
 import { Asset } from "@/services/assetService";
 import assetService from "@/services/assetService";
 import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
-import { SimpleExpiredBanner } from "@/components/subscription/SimpleExpiredBanner";
+import { SubscriptionBanner } from "@/components/subscription/SubscriptionBanner";
 
 // Baca URL API dari environment variable
 const BROADCAST_API_URL = import.meta.env.VITE_BROADCAST_API_URL || 'http://localhost:3004';
@@ -586,8 +586,8 @@ const BroadcastPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Expired Trial Banner */}
-      <SimpleExpiredBanner />
+      {/* Subscription Status Banner - Shows expired or trialing status */}
+      <SubscriptionBanner />
       
       <form onSubmit={handleOpenConfirmDialog} className="space-y-6">
         <div className="flex justify-between items-start">

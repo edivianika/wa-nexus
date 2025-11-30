@@ -5,7 +5,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { PlusCircle, Edit, Trash2, MoreVertical, Plus, Settings, Phone, FileText, Send, UserPlus, Unlink, Link as LinkIcon, MessageSquareText, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ExpiredTrialBanner } from '@/components/subscription/ExpiredTrialBanner';
 import { Card as UiCard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from "@/components/ui/label";
@@ -940,8 +939,6 @@ const KanbanPage = () => {
     <DndProvider backend={HTML5Backend}>
       <TooltipProvider delayDuration={100}>
         <div className="relative flex flex-col h-screen bg-transparent text-gray-900 dark:text-gray-100 overflow-hidden">
-          {/* Expired Trial Banner */}
-          <ExpiredTrialBanner />
           <KanbanHeader 
               ref={headerRef}
               boards={boards}

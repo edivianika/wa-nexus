@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { DeviceCard } from "@/components/devices/device-card";
 import { AddDeviceForm } from "@/components/devices/add-device-form";
-import { TrialNotification } from "@/components/subscription/TrialNotification";
-import { ExpiredTrialBanner } from "@/components/subscription/ExpiredTrialBanner";
+import { SubscriptionBanner } from "@/components/subscription/SubscriptionBanner";
 import { Smartphone, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -424,11 +423,8 @@ const DevicesPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Expired Trial Banner */}
-      <ExpiredTrialBanner />
-      
-      {/* Trial Notification */}
-      <TrialNotification />
+      {/* Subscription Status Banner - Shows expired or trialing status */}
+      <SubscriptionBanner />
       
       
       <div className="flex items-center justify-between">

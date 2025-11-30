@@ -37,7 +37,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
-import { ExpiredTrialBanner } from "@/components/subscription/ExpiredTrialBanner";
+import { SubscriptionBanner } from "@/components/subscription/SubscriptionBanner";
 import { 
   PlusCircle, 
   Search, 
@@ -297,8 +297,8 @@ const BroadcastListPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Expired Trial Banner */}
-      <ExpiredTrialBanner />
+      {/* Subscription Status Banner - Shows expired or trialing status */}
+      <SubscriptionBanner />
       
       <div className="flex justify-between items-center">
         <div>

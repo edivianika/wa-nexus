@@ -82,16 +82,16 @@ const CONNECTION_COOLDOWNS = new Map();
 // Fungsi untuk memeriksa dan mendapatkan status cooldown sebuah connection
 function getConnectionCooldown(connectionId) {
   const cooldown = CONNECTION_COOLDOWNS.get(connectionId);
-  
+
   if (!cooldown) return null;
-  
+
   // Jika waktu cooldown sudah lewat, hapus dari map
   if (Date.now() > cooldown.expiry) {
     CONNECTION_COOLDOWNS.delete(connectionId);
     console.log(`[BroadcastWorker] Cooldown berakhir untuk connection ${connectionId}`);
     return null;
   }
-  
+
   // Return informasi cooldown jika masih berlaku
   return cooldown;
 }
@@ -99,11 +99,11 @@ function getConnectionCooldown(connectionId) {
 // Fungsi untuk menandai connection dalam cooldown
 function setCooldownForConnection(connectionId, durationSeconds) {
   // Default 5 menit jika tidak ditentukan
-  const cooldownDuration = durationSeconds > 0 ? durationSeconds : 300; 
+  const cooldownDuration = durationSeconds > 0 ? durationSeconds : 300;
   const expiry = Date.now() + (cooldownDuration * 1000);
-  
+
   console.log(`[BroadcastWorker] Setting cooldown untuk connection ${connectionId} selama ${cooldownDuration} detik`);
-  
+
   CONNECTION_COOLDOWNS.set(connectionId, {
     expiry,
     remainingSeconds: () => Math.ceil((expiry - Date.now()) / 1000)
@@ -116,7 +116,7 @@ async function getConnectionId(apiKey) {
     // Try Redis first
     const redisKey = `api_key:${apiKey}:connection_id`;
     let connectionId = await redis.get(redisKey);
-    
+
     if (connectionId) {
       // Remove any extra quotes if present
       connectionId = connectionId.replace(/^"|"$/g, '');
@@ -236,7 +236,7 @@ async function sendViaSocket({ to, message, type, mediaUrl, asset_id, caption, c
 // Main worker
 const worker = new Worker('broadcast', async job => {
   const startTime = Date.now();
-  
+
   // Update job status to active
   await broadcastJobs.updateStatus(job.data.dbJobId, 'active');
 
@@ -262,13 +262,13 @@ const worker = new Worker('broadcast', async job => {
     if (cooldown) {
       const remainingSeconds = cooldown.remainingSeconds();
       console.log(`[BroadcastWorker] Job ${job.id} untuk koneksi ${connectionId} sedang dalam cooldown. Menunda job selama ${remainingSeconds} detik.`);
-      
+
       // Update status job
       await broadcastJobs.update(dbJobId, {
         status: 'delayed',
         error_message: `Rate limiting: delayed for ${remainingSeconds} seconds`,
       });
-      
+
       // Throw error agar job dapat di-retry
       throw new Error(`Connection ${connectionId} is in cooldown. Will retry in ${remainingSeconds} seconds.`);
     }
@@ -279,7 +279,7 @@ const worker = new Worker('broadcast', async job => {
 
   // Dapatkan detail subscription user untuk rate limit
   let messagesPerMinute = SPEED_MAP[speed] || SPEED_MAP.normal;
-  
+
   try {
     // Cek apakah user memiliki subscription aktif
     const { data: subscription } = await supabase
@@ -290,7 +290,7 @@ const worker = new Worker('broadcast', async job => {
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
-    
+
     // Jika ada subscription aktif, gunakan rate limit dari plan
     if (subscription?.plans?.limits?.max_speed_msg_per_min) {
       messagesPerMinute = subscription.plans_new.limits.max_speed_msg_per_min;
@@ -301,7 +301,7 @@ const worker = new Worker('broadcast', async job => {
   } catch (error) {
     console.warn(`[BroadcastWorker] Failed to get subscription details, using default rate limit`, { error: error.message, userId });
   }
-  
+
   const delayBetweenMessages = 60000 / messagesPerMinute;
   const delayBetweenBatches = delayBetweenMessages * BATCH_SIZE;
 
@@ -311,7 +311,7 @@ const worker = new Worker('broadcast', async job => {
   let totalProcessed = 0;
 
   // ---- Sequential, rate-limited sending (Drip style) ----
-  
+
   if (!Array.isArray(contacts)) {
     console.error(`[BroadcastWorker] Contacts is not an array for job ${job.id}. Aborting.`);
     await broadcastJobs.update(dbJobId, {
@@ -323,35 +323,35 @@ const worker = new Worker('broadcast', async job => {
   }
 
   const totalContacts = contacts.length;
-    
-  for (const contact of contacts) {
-        const contactData = typeof contact === 'object' ? contact : { phone_number: contact };
-        const to = contactData.phone_number;
 
-        const personalizedMessage = replaceTemplateVars(message, contactData);
-        const personalizedCaption = replaceTemplateVars(caption, contactData);
-        
+  for (const contact of contacts) {
+    const contactData = typeof contact === 'object' ? contact : { phone_number: contact };
+    const to = contactData.phone_number;
+
+    const personalizedMessage = replaceTemplateVars(message, contactData);
+    const personalizedCaption = replaceTemplateVars(caption, contactData);
+
     const result = await sendViaSocket({
-          to,
-          message: personalizedMessage,
-          type,
+      to,
+      message: personalizedMessage,
+      type,
       mediaUrl,
       asset_id,
-          caption: personalizedCaption,
+      caption: personalizedCaption,
       connectionId
     });
 
     totalProcessed++;
 
-        if (result.success) {
-          sentCount++;
+    if (result.success) {
+      sentCount++;
       await messages.updateStatus(dbJobId, to, 'sent', Array.isArray(result.messageIds) ? result.messageIds[0] : result.messageId || null);
     } else if (result.rateLimit) {
       failedCount++;
-        } else {
-          failedCount++;
+    } else {
+      failedCount++;
       await messages.updateStatus(dbJobId, to, 'failed', null, result.error || 'Unknown error');
-          }
+    }
 
     // Respect rate limit
     await new Promise(res => setTimeout(res, delayBetweenMessages));
@@ -371,11 +371,11 @@ const worker = new Worker('broadcast', async job => {
   `);
 
   // Update the job status with proper counts
-  await broadcastJobs.updateStatus(dbJobId, 
-    sentCount > 0 ? 'completed' : 'failed', 
+  await broadcastJobs.updateStatus(dbJobId,
+    sentCount > 0 ? 'completed' : 'failed',
     100 // Set progress to 100%
   );
-  
+
   // Also update the counts separately to ensure they're saved correctly
   const { data, error } = await supabase
     .from('broadcast_jobs')
@@ -385,7 +385,7 @@ const worker = new Worker('broadcast', async job => {
       skipped_count: skippedCount
     })
     .eq('id', dbJobId);
-    
+
   if (error) {
     console.error(`[BroadcastWorker] Error updating job counts:`, error);
   }
